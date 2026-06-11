@@ -480,3 +480,7 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# Tailwind Standalone CLI
+tailwindcss-windows-x64.exe
+

@@ -1,0 +1,53 @@
+@model BanNoiThat.Models.Category
+
+@{
+    ViewData["Title"] = "Thêm danh mục mới";
+}
+
+<div class="max-w-2xl mx-auto px-6 py-10">
+    <div class="mb-8">
+        <a asp-area="Admin" asp-controller="Category" asp-action="Index" class="inline-flex items-center gap-1.5 text-on-surface-variant hover:text-primary transition-colors text-sm font-medium mb-4">
+            <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+            <span>Quay lại danh mục</span>
+        </a>
+        <h1 class="font-headline text-3xl font-semibold text-primary">Thêm danh mục mới</h1>
+        <p class="text-on-surface-variant mt-1 text-sm">Tạo nhóm danh mục mới để phân loại các sản phẩm nội thất.</p>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-outline-variant/30 p-6 md:p-8">
+        <form asp-area="Admin" asp-controller="Category" asp-action="Create" method="post" enctype="multipart/form-data" class="space-y-6">
+            <div asp-validation-summary="ModelOnly" class="text-red-500 text-sm font-medium"></div>
+
+            <!-- Tên danh mục -->
+            <div>
+                <label asp-for="Name" class="block text-sm font-medium text-on-surface mb-2">Tên danh mục <span class="text-red-500">*</span></label>
+                <input asp-for="Name" type="text" placeholder="Ví dụ: Ghế sofa, Bàn ăn, Đèn trang trí..." class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm transition-all" />
+                <span asp-validation-for="Name" class="text-red-500 text-xs mt-1 block"></span>
+            </div>
+
+            <!-- Mô tả danh mục -->
+            <div>
+                <label asp-for="Description" class="block text-sm font-medium text-on-surface mb-2">Mô tả danh mục</label>
+                <textarea asp-for="Description" rows="4" placeholder="Nhập mô tả tóm tắt về danh mục này..." class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm transition-all resize-y"></textarea>
+                <span asp-validation-for="Description" class="text-red-500 text-xs mt-1 block"></span>
+            </div>
+
+            <!-- Hình ảnh danh mục -->
+            <div>
+                <label for="imageFile" class="block text-sm font-medium text-on-surface mb-2">Hình ảnh danh mục</label>
+                <input id="imageFile" name="imageFile" type="file" accept="image/*" class="w-full px-4 py-2 rounded-lg border border-outline-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm bg-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all cursor-pointer" />
+                <p class="text-xs text-on-surface-variant mt-1">Chọn file ảnh đại diện cho danh mục sản phẩm này.</p>
+            </div>
+
+            <!-- Các nút hành động -->
+            <div class="flex items-center justify-end gap-4 pt-4 border-t border-outline-variant/30">
+                <a asp-area="Admin" asp-controller="Category" asp-action="Index" class="px-5 py-2.5 rounded-full border border-outline-variant hover:bg-surface-variant/25 font-medium text-sm text-on-surface transition-all">
+                    Hủy bỏ
+                </a>
+                <button type="submit" class="px-6 py-2.5 rounded-full bg-primary hover:bg-primary-container text-white font-medium text-sm shadow-sm hover:shadow transition-all">
+                    Lưu danh mục
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

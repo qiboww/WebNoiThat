@@ -1,0 +1,107 @@
+@model BanNoiThat.Models.Category
+
+@{
+    ViewData["Title"] = "Chi tiết danh mục - " + Model.Name;
+}
+
+<div class="max-w-5xl mx-auto px-6 py-10">
+    <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <a asp-area="Admin" asp-controller="Category" asp-action="Index" class="inline-flex items-center gap-1.5 text-on-surface-variant hover:text-primary transition-colors text-sm font-medium mb-4">
+                <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+                <span>Quay lại danh mục</span>
+            </a>
+            <h1 class="font-headline text-3xl font-semibold text-primary">Chi tiết danh mục</h1>
+        </div>
+        <div class="flex items-center gap-3">
+            <a asp-area="Admin" asp-controller="Category" asp-action="Edit" asp-route-id="@Model.CategoryId" class="inline-flex items-center gap-1.5 border border-primary text-primary hover:bg-primary/5 px-5 py-2.5 rounded-full font-medium transition-all text-sm">
+                <span class="material-symbols-outlined text-[18px]">edit</span>
+                <span>Chỉnh sửa</span>
+            </a>
+            <a asp-area="Admin" asp-controller="Category" asp-action="Delete" asp-route-id="@Model.CategoryId" class="inline-flex items-center gap-1.5 bg-red-600 text-white hover:bg-red-500 px-5 py-2.5 rounded-full font-medium transition-all text-sm shadow-sm hover:shadow">
+                <span class="material-symbols-outlined text-[18px]">delete</span>
+                <span>Xóa danh mục</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Thông tin chi tiết Danh mục -->
+    <div class="bg-white rounded-xl shadow-sm border border-outline-variant/30 p-6 md:p-8 mb-10">
+        <div class="flex flex-col md:flex-row gap-8 items-center md:items-start">
+            <div class="w-32 h-32 rounded-xl overflow-hidden border border-outline-variant bg-surface-variant/20 flex items-center justify-center flex-shrink-0">
+                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                {
+                    <img src="@Model.ImageUrl" alt="@Model.Name" class="w-full h-full object-cover" />
+                }
+                else
+                {
+                    <span class="material-symbols-outlined text-on-surface-variant/30 text-5xl">folder</span>
+                }
+            </div>
+            <div class="space-y-3 flex-grow text-center md:text-left">
+                <h2 class="font-headline text-2xl font-semibold text-on-surface">@Model.Name</h2>
+                <div class="text-sm text-on-surface-variant font-medium">Mã danh mục: #@Model.CategoryId</div>
+                <p class="text-sm text-on-surface-variant leading-relaxed max-w-2xl">
+                    @(string.IsNullOrEmpty(Model.Description) ? "Không có mô tả cho danh mục này." : Model.Description)
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Danh sách sản phẩm trực thuộc -->
+    <div>
+        <h3 class="font-headline text-2xl font-semibold text-primary mb-6">Sản phẩm thuộc danh mục</h3>
+        <div class="bg-white rounded-xl shadow-sm border border-outline-variant/30 overflow-hidden">
+            @if (Model.Products != null && Model.Products.Any())
+            {
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-secondary-container/30 border-b border-outline-variant/20 text-on-surface-variant text-xs font-semibold uppercase tracking-wider">
+                                <th class="py-4 px-6">Hình ảnh</th>
+                                <th class="py-4 px-6">Tên sản phẩm</th>
+                                <th class="py-4 px-6 text-right">Giá bán</th>
+                                <th class="py-4 px-6 text-center">Số lượng kho</th>
+                                <th class="py-4 px-6">Chất liệu</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-outline-variant/20 text-sm">
+                            @foreach (var prod in Model.Products)
+                            {
+                                <tr class="hover:bg-surface-variant/10 transition-colors">
+                                    <td class="py-4 px-6">
+                                        <div class="w-10 h-10 rounded overflow-hidden bg-surface-variant/20 border border-outline-variant/30 flex items-center justify-center">
+                                            @if (!string.IsNullOrEmpty(prod.ImageUrl))
+                                            {
+                                                <img src="@prod.ImageUrl" alt="@prod.Name" class="w-full h-full object-cover" />
+                                            }
+                                            else
+                                            {
+                                                <span class="material-symbols-outlined text-on-surface-variant/40 text-[18px]">image</span>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-6 font-medium text-on-surface hover:text-primary transition-colors">
+                                        <a asp-area="Admin" asp-controller="Product" asp-action="Details" asp-route-id="@prod.ProductId">@prod.Name</a>
+                                    </td>
+                                    <td class="py-4 px-6 text-right font-semibold text-primary">@prod.Price.ToString("N0")₫</td>
+                                    <td class="py-4 px-6 text-center font-medium @(prod.StockQuantity > 0 ? "text-green-600" : "text-red-500")">
+                                        @prod.StockQuantity
+                                    </td>
+                                    <td class="py-4 px-6 text-on-surface-variant">@prod.Material</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="py-12 px-6 text-center text-on-surface-variant">
+                    <span class="material-symbols-outlined text-4xl text-on-surface-variant/30 block mb-2">inventory_2</span>
+                    Chưa có sản phẩm nào thuộc danh mục này.
+                </div>
+            }
+        </div>
+    </div>
+</div>

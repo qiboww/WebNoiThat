@@ -1,50 +1,75 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+}
+<!DOCTYPE html>
+<html lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - BanNoiThat</title>
-    <script type="importmap"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/BanNoiThat.styles.css" asp-append-version="true" />
-</head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">BanNoiThat</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
+    <title>@ViewData["Title"] | DecorHome</title>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - BanNoiThat - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <link rel="stylesheet" href="~/css/tailwind.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@500;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+</head>
+<body class="bg-background text-on-surface font-body-md">
+
+    <nav class="border-b border-outline-variant/30 bg-surface">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="font-headline text-2xl font-semibold text-primary">DecorHome</span>
+            </div>
+
+            <div class="hidden md:flex gap-8">
+                <a asp-area="" asp-controller="Home" asp-action="Index" class="transition-all duration-200 @(currentController == "Home" && currentAction == "Index" ? "text-primary font-medium border-b-2 border-primary" : "text-on-surface-variant hover:text-primary")">Trang chủ</a>
+                <a asp-area="" asp-controller="Home" asp-action="Products" class="transition-all duration-200 @(currentController == "Home" && (currentAction == "Products" || currentAction == "ProductDetails") ? "text-primary font-medium border-b-2 border-primary" : "text-on-surface-variant hover:text-primary")">Sản phẩm</a>
+                <a href="#" class="text-on-surface-variant hover:text-primary transition-colors">Không gian</a>
+                <a href="#" class="text-on-surface-variant hover:text-primary transition-colors">Liên hệ</a>
+            </div>
+
+            <div class="flex items-center gap-4 text-on-surface-variant">
+                <button class="hover:text-primary"><span class="material-symbols-outlined">search</span></button>
+                <button class="hover:text-primary relative">
+                    <span class="material-symbols-outlined">shopping_cart</span>
+                    <span class="absolute -top-2 -right-2 bg-primary text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center">0</span>
+                </button>
+                <partial name="_LoginPartial" />
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        @RenderBody()
+    </main>
+
+    <footer class="bg-secondary-container py-12 mt-16">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+                <span class="font-headline text-2xl text-primary">DecorHome</span>
+                <p class="mt-4 text-on-surface-variant">Nội thất tối giản mang phong cách Bắc Âu.</p>
+            </div>
+            <div>
+                <h4 class="font-semibold mb-4">Liên kết</h4>
+                <ul class="space-y-2 text-on-surface-variant">
+                    <li><a href="#" class="hover:text-primary">Về chúng tôi</a></li>
+                    <li><a href="#" class="hover:text-primary">Chính sách giao hàng</a></li>
+                    <li><a href="#" class="hover:text-primary">Chính sách bảo mật</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-semibold mb-4">Liên hệ</h4>
+                <ul class="space-y-2 text-on-surface-variant">
+                    <li>Email: support@DecorHome.vn</li>
+                    <li>Hotline: 1900 1234</li>
+                </ul>
+            </div>
+        </div>
+        <div class="text-center text-on-surface-variant mt-12 pt-8 border-t border-outline-variant/30 text-sm">
+            © 2026 DecorHome. All rights reserved.
         </div>
     </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

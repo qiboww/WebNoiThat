@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace BanNoiThat.Models
@@ -12,8 +12,10 @@ namespace BanNoiThat.Models
         [StringLength(255, ErrorMessage = "Tên danh mục không được vượt quá 255 ký tự")]
         public string Name { get; set; }
 
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
-        public virtual ICollection<Product> Products { get; set; }
+        public string? ImageUrl { get; set; }
+
+        public virtual ICollection<Product>? Products { get; set; }
     }
 }

@@ -1,0 +1,56 @@
+@model BanNoiThat.Models.Product
+
+@{
+    ViewData["Title"] = "Xóa sản phẩm - " + Model.Name;
+}
+
+<div class="max-w-2xl mx-auto px-6 py-10">
+    <div class="mb-8">
+        <a asp-area="Admin" asp-controller="Product" asp-action="Index" class="inline-flex items-center gap-1.5 text-on-surface-variant hover:text-primary transition-colors text-sm font-medium mb-4">
+            <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+            <span>Quay lại danh sách</span>
+        </a>
+        <h1 class="font-headline text-3xl font-semibold text-red-600">Xóa sản phẩm</h1>
+        <p class="text-on-surface-variant mt-1 text-sm">Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa sản phẩm này?</p>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-red-200 overflow-hidden p-6 md:p-8 space-y-6">
+        <div class="flex gap-6 items-center pb-6 border-b border-outline-variant/20">
+            <div class="w-20 h-20 rounded-lg overflow-hidden border border-outline-variant bg-surface-variant/20 flex items-center justify-center flex-shrink-0">
+                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                {
+                    <img src="@Model.ImageUrl" alt="@Model.Name" class="w-full h-full object-cover" />
+                }
+                else
+                {
+                    <span class="material-symbols-outlined text-on-surface-variant/30 text-3xl">image</span>
+                }
+            </div>
+            <div>
+                <span class="bg-red-50 text-red-700 text-xs px-2.5 py-1 rounded-full font-medium">
+                    @(Model.Category?.Name ?? "N/A")
+                </span>
+                <h2 class="font-headline text-xl font-semibold text-on-surface mt-2">@Model.Name</h2>
+                <div class="text-primary font-semibold text-lg mt-1">@Model.Price.ToString("N0")₫</div>
+            </div>
+        </div>
+
+        <div class="bg-red-50/50 border border-red-100 p-4 rounded-lg flex gap-3 text-red-800 text-sm">
+            <span class="material-symbols-outlined text-red-600 text-[20px] flex-shrink-0 mt-0.5">warning</span>
+            <div>
+                <p class="font-semibold">Cảnh báo: Xóa sản phẩm</p>
+                <p class="text-xs text-red-700/95 mt-1">Khi xóa sản phẩm này, tất cả hình ảnh liên quan lưu trên server cũng sẽ bị xóa vĩnh viễn.</p>
+            </div>
+        </div>
+
+        <form asp-area="Admin" asp-controller="Product" asp-action="Delete" method="post" class="flex items-center justify-end gap-4 pt-4 border-t border-outline-variant/20">
+            <input type="hidden" asp-for="ProductId" />
+            <a asp-area="Admin" asp-controller="Product" asp-action="Index" class="px-5 py-2.5 rounded-full border border-outline-variant hover:bg-surface-variant/25 font-medium text-sm text-on-surface transition-all">
+                Hủy bỏ
+            </a>
+            <button type="submit" class="px-6 py-2.5 rounded-full bg-red-600 hover:bg-red-500 text-white font-medium text-sm shadow-sm hover:shadow transition-all">
+                Xác nhận xóa
+            </button>
+        </form>
+    </div>
+</div>

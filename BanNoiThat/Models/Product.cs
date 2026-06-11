@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BanNoiThat.Models
@@ -17,19 +17,22 @@ namespace BanNoiThat.Models
         public decimal Price { get; set; }
 
         [Required]
+        [Range(0, int.MaxValue, ErrorMessage = "Số lượng tồn kho phải là số không âm")]
         public int StockQuantity { get; set; }
 
         [StringLength(100)]
-        public string Material { get; set; }
+        [Required(ErrorMessage = "Chất liệu là bắt buộc")]
+        public string? Material { get; set; }
 
-        public string ImageUrl { get; set; }
+        public string? ImageUrl { get; set; }
 
-        public string Description { get; set; }
+        [StringLength(2000)]
+        public string? Description { get; set; }
 
         [Required]
         public int CategoryId { get; set; }
 
         [ForeignKey("CategoryId")]
-        public virtual Category Category { get; set; }
+        public virtual Category? Category { get; set; }
     }
 }

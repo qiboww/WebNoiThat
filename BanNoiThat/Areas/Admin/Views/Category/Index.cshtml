@@ -1,0 +1,85 @@
+@model IEnumerable<BanNoiThat.Models.Category>
+
+@{
+    ViewData["Title"] = "Quản lý danh mục";
+}
+
+<div class="max-w-7xl mx-auto px-6 py-10">
+    <partial name="_AdminNav" />
+
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+        <div>
+            <h1 class="font-headline text-3xl font-semibold text-primary">Quản lý danh mục</h1>
+            <p class="text-on-surface-variant mt-1 text-sm">Quản lý các nhóm thể loại sản phẩm nội thất có trong hệ thống.</p>
+        </div>
+        <div>
+            <a asp-area="Admin" asp-controller="Category" asp-action="Create" class="inline-flex items-center gap-2 bg-primary text-white hover:bg-primary-container px-5 py-2.5 rounded-full font-medium shadow-sm hover:shadow transition-all duration-200">
+                <span class="material-symbols-outlined text-[20px]">add</span>
+                <span>Thêm danh mục mới</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-outline-variant/30 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-secondary-container/30 border-b border-outline-variant/20 text-on-surface-variant text-xs font-semibold uppercase tracking-wider">
+                        <th class="py-4 px-6">Hình ảnh</th>
+                        <th class="py-4 px-6">ID</th>
+                        <th class="py-4 px-6">Tên danh mục</th>
+                        <th class="py-4 px-6">Mô tả</th>
+                        <th class="py-4 px-6 text-center">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-outline-variant/20 text-sm">
+                    @if (Model != null && Model.Any())
+                    {
+                        @foreach (var item in Model)
+                        {
+                            <tr class="hover:bg-surface-variant/10 transition-colors">
+                                <td class="py-4 px-6">
+                                    <div class="w-12 h-12 rounded-lg overflow-hidden bg-surface-variant/20 border border-outline-variant/30 flex items-center justify-center">
+                                        @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                        {
+                                            <img src="@item.ImageUrl" alt="@item.Name" class="w-full h-full object-cover" />
+                                        }
+                                        else
+                                        {
+                                            <span class="material-symbols-outlined text-on-surface-variant/40 text-[20px]">folder</span>
+                                        }
+                                    </div>
+                                </td>
+                                <td class="py-4 px-6 text-on-surface-variant font-medium">#@item.CategoryId</td>
+                                <td class="py-4 px-6 font-semibold text-primary text-base">@item.Name</td>
+                                <td class="py-4 px-6 text-on-surface-variant max-w-md truncate">@item.Description</td>
+                                <td class="py-4 px-6">
+                                    <div class="flex items-center justify-center gap-3">
+                                        <a asp-area="Admin" asp-controller="Category" asp-action="Details" asp-route-id="@item.CategoryId" class="text-on-surface-variant hover:text-primary p-1 rounded hover:bg-surface-variant/20 transition-colors" title="Xem chi tiết">
+                                            <span class="material-symbols-outlined text-[20px]">visibility</span>
+                                        </a>
+                                        <a asp-area="Admin" asp-controller="Category" asp-action="Edit" asp-route-id="@item.CategoryId" class="text-primary hover:text-primary-container p-1 rounded hover:bg-surface-variant/20 transition-colors" title="Sửa">
+                                            <span class="material-symbols-outlined text-[20px]">edit</span>
+                                        </a>
+                                        <a asp-area="Admin" asp-controller="Category" asp-action="Delete" asp-route-id="@item.CategoryId" class="text-red-600 hover:text-red-500 p-1 rounded hover:bg-red-50 transition-colors" title="Xóa">
+                                            <span class="material-symbols-outlined text-[20px]">delete</span>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" class="py-10 px-6 text-center text-on-surface-variant">
+                                <span class="material-symbols-outlined text-4xl text-on-surface-variant/30 block mb-2">folder_open</span>
+                                Chưa có danh mục nào. Hãy bấm "Thêm danh mục mới" để bắt đầu.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

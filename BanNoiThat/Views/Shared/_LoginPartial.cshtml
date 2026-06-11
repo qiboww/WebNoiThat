@@ -1,0 +1,38 @@
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+
+@if (SignInManager.IsSignedIn(User))
+{
+    <div class="flex items-center gap-4">
+        @if (User.IsInRole("Admin"))
+        {
+            <a class="text-primary hover:text-primary-container text-sm font-medium flex items-center gap-1 transition-colors" asp-area="Admin" asp-controller="Product" asp-action="Index" title="Trang quản trị">
+                <span class="material-symbols-outlined text-[22px]">admin_panel_settings</span>
+                <span class="hidden md:inline">Quản trị</span>
+            </a>
+        }
+        <a class="hover:text-primary text-sm font-medium flex items-center gap-1.5 transition-colors" asp-area="Identity" asp-page="/Account/Manage/Index" title="Quản lý tài khoản">
+            <span class="material-symbols-outlined text-[22px]">account_circle</span>
+            <span class="hidden lg:inline text-on-surface-variant hover:text-primary">@User.Identity?.Name</span>
+        </a>
+        <form class="inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post">
+            <button type="submit" class="hover:text-primary flex items-center gap-1 text-sm font-medium transition-colors cursor-pointer">
+                <span class="material-symbols-outlined text-[20px]">logout</span>
+                <span class="hidden sm:inline">Đăng xuất</span>
+            </button>
+        </form>
+    </div>
+}
+else
+{
+    <div class="flex items-center gap-3">
+        <a class="hover:text-primary text-sm font-medium flex items-center gap-1 transition-colors" asp-area="Identity" asp-page="/Account/Login">
+            <span class="material-symbols-outlined text-[22px]">login</span>
+            <span>Đăng nhập</span>
+        </a>
+        <a class="bg-primary text-white hover:bg-primary-container text-sm font-medium px-4 py-2 rounded-full transition-all duration-200 shadow-sm hover:shadow" asp-area="Identity" asp-page="/Account/Register">
+            Đăng ký
+        </a>
+    </div>
+}

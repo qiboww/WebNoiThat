@@ -1,0 +1,89 @@
+@model BanNoiThat.Models.Product
+
+@{
+    ViewData["Title"] = Model.Name + " - DecorHome";
+}
+
+<div class="max-w-6xl mx-auto px-6 py-12">
+    <!-- Nút quay lại -->
+    <div class="mb-6">
+        <a asp-controller="Home" asp-action="Products" class="inline-flex items-center gap-1.5 text-on-surface-variant hover:text-primary transition-colors text-sm font-medium">
+            <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+            <span>Quay lại cửa hàng</span>
+        </a>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-outline-variant/20 overflow-hidden p-6 md:p-10">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <!-- Hình ảnh sản phẩm (bên trái) -->
+            <div class="aspect-square w-full rounded-xl overflow-hidden bg-surface-variant/20 border border-outline-variant/30 flex items-center justify-center relative">
+                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                {
+                    <img src="@Model.ImageUrl" alt="@Model.Name" class="w-full h-full object-cover" />
+                }
+                else
+                {
+                    <div class="flex flex-col items-center justify-center text-on-surface-variant/30">
+                        <span class="material-symbols-outlined text-8xl block mb-2">image</span>
+                        <span class="text-sm">Chưa cập nhật hình ảnh</span>
+                    </div>
+                }
+            </div>
+
+            <!-- Thông tin chi tiết (bên phải) -->
+            <div class="flex flex-col justify-between h-full space-y-8">
+                <div class="space-y-6">
+                    <div>
+                        <span class="bg-secondary-container text-primary text-xs px-3 py-1.5 rounded-full font-semibold uppercase tracking-wider">
+                            @(Model.Category?.Name ?? "Nội thất")
+                        </span>
+                        <h1 class="font-headline text-3xl md:text-4xl font-semibold text-on-surface mt-3">@Model.Name</h1>
+                    </div>
+
+                    <div class="border-t border-b border-outline-variant/20 py-5">
+                        <div class="text-xs text-on-surface-variant uppercase tracking-wider font-semibold">Giá bán lẻ</div>
+                        <div class="text-4xl font-semibold text-primary mt-1">@Model.Price.ToString("N0")₫</div>
+                    </div>
+
+                    <!-- Thông số phụ -->
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div class="bg-surface-variant/10 p-4 rounded-xl border border-outline-variant/20">
+                            <div class="text-xs text-on-surface-variant font-medium">Chất liệu chính</div>
+                            <div class="text-on-surface font-semibold mt-1">@(string.IsNullOrEmpty(Model.Material) ? "Đang cập nhật" : Model.Material)</div>
+                        </div>
+                        <div class="bg-surface-variant/10 p-4 rounded-xl border border-outline-variant/20">
+                            <div class="text-xs text-on-surface-variant font-medium">Tình trạng kho</div>
+                            <div class="font-semibold mt-1 @(Model.StockQuantity > 0 ? "text-green-600" : "text-red-500")">
+                                @(Model.StockQuantity > 0 ? $"Còn hàng ({Model.StockQuantity} chiếc)" : "Hết hàng")
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mô tả sản phẩm -->
+                    <div class="space-y-2.5">
+                        <h3 class="text-sm font-semibold text-on-surface uppercase tracking-wider">Mô tả sản phẩm</h3>
+                        <p class="text-sm text-on-surface-variant leading-relaxed whitespace-pre-wrap">@(string.IsNullOrEmpty(Model.Description) ? "Hiện chưa có thông tin mô tả chi tiết cho sản phẩm này từ DecorHome." : Model.Description)</p>
+                    </div>
+                </div>
+
+                <!-- Nút Thêm vào giỏ -->
+                <div class="pt-6 border-t border-outline-variant/20">
+                    @if (Model.StockQuantity > 0)
+                    {
+                        <button class="w-full bg-primary hover:bg-primary-container text-white py-3 px-6 rounded-full font-semibold shadow hover:shadow-md transition-all duration-200 flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined">shopping_cart</span>
+                            <span>Thêm vào giỏ hàng</span>
+                        </button>
+                    }
+                    else
+                    {
+                        <button disabled class="w-full bg-on-surface-variant/20 text-on-surface-variant/60 py-3 px-6 rounded-full font-semibold cursor-not-allowed flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined">inventory_2</span>
+                            <span>Sản phẩm tạm hết hàng</span>
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

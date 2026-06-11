@@ -1,0 +1,81 @@
+@model BanNoiThat.Models.Product
+
+@{
+    ViewData["Title"] = "Chi tiết sản phẩm - " + Model.Name;
+}
+
+<div class="max-w-4xl mx-auto px-6 py-10">
+    <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <a asp-area="Admin" asp-controller="Product" asp-action="Index" class="inline-flex items-center gap-1.5 text-on-surface-variant hover:text-primary transition-colors text-sm font-medium mb-4">
+                <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+                <span>Quay lại danh sách</span>
+            </a>
+            <h1 class="font-headline text-3xl font-semibold text-primary">Chi tiết sản phẩm</h1>
+        </div>
+        <div class="flex items-center gap-3">
+            <a asp-area="Admin" asp-controller="Product" asp-action="Edit" asp-route-id="@Model.ProductId" class="inline-flex items-center gap-1.5 border border-primary text-primary hover:bg-primary/5 px-5 py-2.5 rounded-full font-medium transition-all text-sm">
+                <span class="material-symbols-outlined text-[18px]">edit</span>
+                <span>Chỉnh sửa</span>
+            </a>
+            <a asp-area="Admin" asp-controller="Product" asp-action="Delete" asp-route-id="@Model.ProductId" class="inline-flex items-center gap-1.5 bg-red-600 text-white hover:bg-red-500 px-5 py-2.5 rounded-full font-medium transition-all text-sm shadow-sm hover:shadow">
+                <span class="material-symbols-outlined text-[18px]">delete</span>
+                <span>Xóa sản phẩm</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-outline-variant/30 overflow-hidden p-6 md:p-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Hình ảnh sản phẩm -->
+            <div class="aspect-square rounded-lg overflow-hidden bg-surface-variant/20 border border-outline-variant/30 flex items-center justify-center relative">
+                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                {
+                    <img src="@Model.ImageUrl" alt="@Model.Name" class="w-full h-full object-cover" />
+                }
+                else
+                {
+                    <div class="flex flex-col items-center justify-center text-on-surface-variant/30 p-8">
+                        <span class="material-symbols-outlined text-7xl block mb-2">image</span>
+                        <span class="text-sm">Không có hình ảnh</span>
+                    </div>
+                }
+            </div>
+
+            <!-- Thông tin chi tiết -->
+            <div class="flex flex-col justify-between space-y-6">
+                <div class="space-y-4">
+                    <div>
+                        <span class="bg-secondary-container text-primary text-xs px-2.5 py-1 rounded-full font-semibold uppercase tracking-wider">
+                            @(Model.Category?.Name ?? "N/A")
+                        </span>
+                        <h2 class="font-headline text-2xl font-semibold text-on-surface mt-2">@Model.Name</h2>
+                    </div>
+
+                    <div class="border-t border-b border-outline-variant/20 py-4">
+                        <div class="text-xs text-on-surface-variant uppercase tracking-wider font-semibold">Giá bán</div>
+                        <div class="text-3xl font-semibold text-primary mt-1">@Model.Price.ToString("N0")₫</div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div class="bg-surface-variant/10 p-3 rounded-lg border border-outline-variant/20">
+                            <div class="text-xs text-on-surface-variant font-medium">Chất liệu</div>
+                            <div class="text-on-surface font-semibold mt-1">@(string.IsNullOrEmpty(Model.Material) ? "Chưa cập nhật" : Model.Material)</div>
+                        </div>
+                        <div class="bg-surface-variant/10 p-3 rounded-lg border border-outline-variant/20">
+                            <div class="text-xs text-on-surface-variant font-medium">Số lượng kho</div>
+                            <div class="font-semibold mt-1 @(Model.StockQuantity > 0 ? "text-green-600" : "text-red-500")">
+                                @Model.StockQuantity chiếc @(Model.StockQuantity > 0 ? "(Còn hàng)" : "(Hết hàng)")
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <h3 class="text-sm font-semibold text-on-surface uppercase tracking-wider">Mô tả sản phẩm</h3>
+                    <p class="text-sm text-on-surface-variant leading-relaxed whitespace-pre-wrap">@(string.IsNullOrEmpty(Model.Description) ? "Không có mô tả cho sản phẩm này." : Model.Description)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

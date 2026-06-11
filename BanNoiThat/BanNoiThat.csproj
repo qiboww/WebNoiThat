@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.8" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="10.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.8">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -18,5 +19,14 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Areas\Admin\Models\" />
+    <Folder Include="wwwroot\images\" />
+  </ItemGroup>
+
+  <Target Name="TailwindBuild" BeforeTargets="Build">
+    <Exec Command="&quot;$(ProjectDir)tailwindcss-windows-x64.exe&quot; -i &quot;$(ProjectDir)wwwroot\css\input.css&quot; -o &quot;$(ProjectDir)wwwroot\css\tailwind.css&quot; --minify" />
+  </Target>
 
 </Project>
