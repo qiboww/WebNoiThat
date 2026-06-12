@@ -15,7 +15,7 @@ namespace BanNoiThat.Repositories
 
         public async Task<IEnumerable<Category>> GetAllCategoriesAsync()
         {
-            return await _context.Categories.ToListAsync();
+            return await _context.Categories.AsNoTracking().ToListAsync();
         }
 
         public async Task<Category?> GetCategoryByIdAsync(int id)
@@ -27,6 +27,7 @@ namespace BanNoiThat.Repositories
         {
             return await _context.Categories
                 .Include(c => c.Products)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.CategoryId == id);
         }
 

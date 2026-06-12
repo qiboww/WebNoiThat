@@ -67,7 +67,7 @@
                             <a asp-controller="Home" asp-action="ProductDetails" asp-route-id="@item.ProductId" class="aspect-square w-full overflow-hidden bg-surface-variant/20 relative block">
                                 @if (!string.IsNullOrEmpty(item.ImageUrl))
                                 {
-                                    <img src="@item.ImageUrl" alt="@item.Name" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                    <img src="@item.ImageUrl" alt="@item.Name" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                                 }
                                 else
                                 {

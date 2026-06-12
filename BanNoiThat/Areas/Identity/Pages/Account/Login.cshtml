@@ -1,0 +1,61 @@
+@page
+@model LoginModel
+
+@{
+    ViewData["Title"] = "Đăng nhập";
+}
+
+<div class="min-h-[70vh] flex items-center justify-center py-12 px-6">
+    <div class="max-w-md w-full bg-white rounded-2xl shadow-sm border border-outline-variant/35 p-8 space-y-6">
+        
+        <div class="text-center">
+            <h1 class="font-headline text-3xl font-semibold text-primary">DecorHome</h1>
+            <p class="text-on-surface-variant text-sm mt-2">Đăng nhập tài khoản để tiếp tục trải nghiệm mua sắm</p>
+        </div>
+
+        <form id="account" method="post" class="space-y-4">
+            <div asp-validation-summary="ModelOnly" class="text-red-600 text-xs font-semibold" role="alert"></div>
+
+            <div class="space-y-1">
+                <label asp-for="Input.Email" class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Email</label>
+                <input asp-for="Input.Email" class="w-full px-4 py-3 rounded-xl border border-outline-variant/50 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none text-sm transition-all bg-surface/30" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+                <span asp-validation-for="Input.Email" class="text-red-500 text-xs"></span>
+            </div>
+
+            <div class="space-y-1">
+                <div class="flex justify-between items-center">
+                    <label asp-for="Input.Password" class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Mật khẩu</label>
+                    <a id="forgot-password" asp-page="./ForgotPassword" class="text-xs text-primary hover:underline font-medium">Quên mật khẩu?</a>
+                </div>
+                <input asp-for="Input.Password" class="w-full px-4 py-3 rounded-xl border border-outline-variant/50 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none text-sm transition-all bg-surface/30" autocomplete="current-password" aria-required="true" placeholder="••••••••" />
+                <span asp-validation-for="Input.Password" class="text-red-500 text-xs"></span>
+            </div>
+
+            <div class="flex items-center justify-between pt-1">
+                <label asp-for="Input.RememberMe" class="flex items-center gap-2 text-sm text-on-surface-variant cursor-pointer select-none">
+                    <input class="w-4 h-4 rounded text-primary focus:ring-primary border-outline-variant" asp-for="Input.RememberMe" />
+                    <span>Duy trì đăng nhập</span>
+                </label>
+            </div>
+
+            <button id="login-submit" type="submit" class="w-full bg-primary hover:bg-primary-container text-white py-3 rounded-xl font-semibold shadow hover:shadow-md transition-all duration-200 mt-2 cursor-pointer">
+                Đăng nhập
+            </button>
+        </form>
+
+        <div class="relative flex py-2 items-center">
+            <div class="flex-grow border-t border-outline-variant/20"></div>
+            <span class="flex-shrink mx-4 text-on-surface-variant/40 text-[10px] uppercase tracking-wider font-semibold">hoặc</span>
+            <div class="flex-grow border-t border-outline-variant/20"></div>
+        </div>
+
+        <div class="text-center text-sm text-on-surface-variant">
+            <span>Chưa có tài khoản? </span>
+            <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl" class="text-primary font-semibold hover:underline">Đăng ký ngay</a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

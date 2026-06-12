@@ -13,11 +13,15 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
-// Register Identity services
-builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+// Register Identity services using ApplicationUser and IdentityRole
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => {
+    options.SignIn.RequireConfirmedAccount = false; // Tắt yêu cầu xác nhận email
+})
     .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddDefaultUI()
     .AddDefaultTokenProviders();
+
+// Đăng ký dịch vụ gửi Email giả lập cho các trang Identity (Đăng ký, Quên mật khẩu...)
+builder.Services.AddSingleton<Microsoft.AspNetCore.Identity.UI.Services.IEmailSender, DummyEmailSender>();
 
 // Register Repositories
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
@@ -26,13 +30,13 @@ builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
 var app = builder.Build();
 
-// Khởi tạo dữ liệu mẫu (Seed Data) bao gồm tài khoản Admin
+// Khởi tạo dữ liệu tài khoản Admin
 //using (var scope = app.Services.CreateScope())
 //{
 //    var services = scope.ServiceProvider;
 //    try
 //    {
-//        var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
+//        var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
 //        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
 //        await DbInitializer.SeedDataAsync(userManager, roleManager);
 //    }

@@ -15,12 +15,12 @@ namespace BanNoiThat.Repositories
 
         public async Task<IEnumerable<Product>> GetAllProductsAsync()
         {
-            return await _context.Products.Include(p => p.Category).ToListAsync();
+            return await _context.Products.Include(p => p.Category).AsNoTracking().ToListAsync();
         }
 
         public async Task<IEnumerable<Product>> GetProductsByCategoryAsync(int? categoryId)
         {
-            IQueryable<Product> query = _context.Products.Include(p => p.Category);
+            IQueryable<Product> query = _context.Products.Include(p => p.Category).AsNoTracking();
             if (categoryId.HasValue)
             {
                 query = query.Where(p => p.CategoryId == categoryId.Value);
@@ -37,6 +37,7 @@ namespace BanNoiThat.Repositories
         {
             return await _context.Products
                 .Include(p => p.Category)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.ProductId == id);
         }
 

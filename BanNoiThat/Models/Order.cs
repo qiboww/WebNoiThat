@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
+using BanNoiThat.Data;
 
 namespace BanNoiThat.Models
 {
@@ -15,7 +16,7 @@ namespace BanNoiThat.Models
         public string UserId { get; set; }
 
         [ForeignKey("UserId")]
-        public virtual IdentityUser User { get; set; }
+        public virtual ApplicationUser User { get; set; }
 
         public DateTime OrderDate { get; set; }
 

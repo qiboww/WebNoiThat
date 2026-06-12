@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
 
 namespace BanNoiThat.Data
 {
     public static class DbInitializer
     {
-        public static async Task SeedDataAsync(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
+        public static async Task SeedDataAsync(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             if (!await roleManager.RoleExistsAsync("Admin"))
             {
@@ -14,7 +14,7 @@ namespace BanNoiThat.Data
 
             if (await userManager.FindByEmailAsync("admin@webnoithat.com") == null)
             {
-                var adminUser = new IdentityUser
+                var adminUser = new ApplicationUser
                 {
                     UserName = "admin@webnoithat.com",
                     Email = "admin@webnoithat.com",

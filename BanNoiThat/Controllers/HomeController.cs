@@ -26,13 +26,15 @@ namespace BanNoiThat.Controllers
         public async Task<IActionResult> Products(int? categoryId)
         {
             var products = await _productRepo.GetProductsByCategoryAsync(categoryId);
+            var categories = await _categoryRepo.GetAllCategoriesAsync();
+
             if (categoryId.HasValue)
             {
-                var category = await _categoryRepo.GetCategoryByIdAsync(categoryId.Value);
+                var category = categories.FirstOrDefault(c => c.CategoryId == categoryId.Value);
                 ViewBag.CategoryName = category?.Name;
             }
 
-            ViewBag.Categories = await _categoryRepo.GetAllCategoriesAsync();
+            ViewBag.Categories = categories;
             ViewBag.SelectedCategoryId = categoryId;
             return View(products);
         }
