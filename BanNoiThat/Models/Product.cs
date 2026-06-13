@@ -26,6 +26,8 @@ namespace BanNoiThat.Models
 
         public string? ImageUrl { get; set; }
 
+        public string? Model3DUrl { get; set; }
+
         [StringLength(2000)]
         public string? Description { get; set; }
 

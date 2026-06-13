@@ -34,11 +34,10 @@ namespace BanNoiThat.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Product product, IFormFile? imageFile)
+        public async Task<IActionResult> Create(Product product, IFormFile? imageFile, IFormFile? model3dFile)
         {
             if (ModelState.IsValid)
-            {
+            { //.Length dung lượng file (tính theo đơn vị Bytes)
                 if (imageFile != null && imageFile.Length > 0)
                 {
                     // Đảm bảo thư mục wwwroot/images/product tồn tại
@@ -60,6 +59,29 @@ namespace BanNoiThat.Areas.Admin.Controllers
 
                     // Gán đường dẫn ảnh cho sản phẩm
                     product.ImageUrl = "/images/product/" + fileName;
+                }
+
+                if (model3dFile != null && model3dFile.Length > 0)
+                {
+                    // Đảm bảo thư mục wwwroot/models/product tồn tại
+                    var modelsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "models", "product");
+                    if (!Directory.Exists(modelsFolder))
+                    {
+                        Directory.CreateDirectory(modelsFolder);
+                    }
+
+                    // Tạo tên file duy nhất
+                    var fileName = Guid.NewGuid().ToString() + Path.GetExtension(model3dFile.FileName);
+                    var filePath = Path.Combine(modelsFolder, fileName);
+
+                    // Lưu file vào thư mục wwwroot/models/product
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await model3dFile.CopyToAsync(stream);
+                    }
+
+                    // Gán đường dẫn mô hình 3D cho sản phẩm
+                    product.Model3DUrl = "/models/product/" + fileName;
                 }
 
                 await _productRepo.AddProductAsync(product);
@@ -97,8 +119,7 @@ namespace BanNoiThat.Areas.Admin.Controllers
 
         // POST: Admin/Product/Edit/5
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Product product, IFormFile? imageFile)
+        public async Task<IActionResult> Edit(int id, Product product, IFormFile? imageFile, IFormFile? model3dFile)
         {
             if (id != product.ProductId) return NotFound();
 
@@ -136,6 +157,36 @@ namespace BanNoiThat.Areas.Admin.Controllers
                         product.ImageUrl = "/images/product/" + fileName;
                     }
 
+                    if (model3dFile != null && model3dFile.Length > 0)
+                    {
+                        var modelsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "models", "product");
+                        if (!Directory.Exists(modelsFolder))
+                        {
+                            Directory.CreateDirectory(modelsFolder);
+                        }
+
+                        // Xóa mô hình cũ nếu có
+                        if (!string.IsNullOrEmpty(product.Model3DUrl))
+                        {
+                            var oldFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", product.Model3DUrl.TrimStart('/'));
+                            if (System.IO.File.Exists(oldFilePath))
+                            {
+                                System.IO.File.Delete(oldFilePath);
+                            }
+                        }
+
+                        // Lưu mô hình mới
+                        var fileName = Guid.NewGuid().ToString() + Path.GetExtension(model3dFile.FileName);
+                        var filePath = Path.Combine(modelsFolder, fileName);
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await model3dFile.CopyToAsync(stream);
+                        }
+
+                        // Cập nhật đường dẫn mô hình mới
+                        product.Model3DUrl = "/models/product/" + fileName;
+                    }
+
                     await _productRepo.UpdateProductAsync(product);
                 }
                 catch (DbUpdateConcurrencyException)
@@ -150,7 +201,7 @@ namespace BanNoiThat.Areas.Admin.Controllers
             return View(product);
         }
 
-        // GET: Admin/Product/Delete/5
+        // GET: Admin/Product/Delete?5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
@@ -162,9 +213,8 @@ namespace BanNoiThat.Areas.Admin.Controllers
             return View(product);
         }
 
-        // POST: Admin/Product/Delete/5
+        // POST: Admin/Product/Delete?5
         [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var product = await _productRepo.GetProductByIdAsync(id);
@@ -174,6 +224,16 @@ namespace BanNoiThat.Areas.Admin.Controllers
                 if (!string.IsNullOrEmpty(product.ImageUrl))
                 {
                     var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", product.ImageUrl.TrimStart('/'));
+                    if (System.IO.File.Exists(filePath))
+                    {
+                        System.IO.File.Delete(filePath);
+                    }
+                }
+
+                // Xóa mô hình 3D trên server
+                if (!string.IsNullOrEmpty(product.Model3DUrl))
+                {
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", product.Model3DUrl.TrimStart('/'));
                     if (System.IO.File.Exists(filePath))
                     {
                         System.IO.File.Delete(filePath);

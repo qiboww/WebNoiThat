@@ -27,6 +27,17 @@ builder.Services.AddSingleton<Microsoft.AspNetCore.Identity.UI.Services.IEmailSe
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
+// Cấu hình giới hạn dung lượng tải lên file cho Multipart Form (ví dụ: 200MB)
+builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 209715200; // 200 MB
+});
+
+// Cấu hình giới hạn dung lượng request body của Kestrel (ví dụ: 200MB)
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = 209715200; // 200 MB
+});
 
 var app = builder.Build();
 
@@ -49,7 +60,16 @@ var app = builder.Build();
 
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
+
+// Cấu hình MIME type để ASP.NET Core phục vụ tệp .glb và .gltf
+var provider = new Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider();
+provider.Mappings[".glb"] = "model/gltf-binary";
+provider.Mappings[".gltf"] = "model/gltf+json";
+app.UseStaticFiles(new StaticFileOptions
+{
+    ContentTypeProvider = provider
+});
+
 app.UseRouting();
 
 app.UseAuthentication();

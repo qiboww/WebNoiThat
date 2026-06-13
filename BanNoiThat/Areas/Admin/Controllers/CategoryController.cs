@@ -30,7 +30,6 @@ namespace BanNoiThat.Areas.Admin.Controllers
 
         // POST: Admin/Category/Create
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Category category, IFormFile? imageFile)
         {
             if (ModelState.IsValid)
@@ -89,7 +88,6 @@ namespace BanNoiThat.Areas.Admin.Controllers
 
         // POST: Admin/Category/Edit/5
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Category category, IFormFile? imageFile)
         {
             if (id != category.CategoryId) return NotFound();
@@ -153,7 +151,6 @@ namespace BanNoiThat.Areas.Admin.Controllers
 
         // POST: Admin/Category/Delete/5
         [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var category = await _categoryRepo.GetCategoryByIdAsync(id);
