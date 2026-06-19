@@ -1,5 +1,3 @@
-@model BanNoiThat.Models.Category
-
 @{
     ViewData["Title"] = "Thêm danh mục mới";
 }
@@ -15,21 +13,19 @@
     </div>
 
     <div class="bg-white rounded-xl shadow-sm border border-outline-variant/30 p-6 md:p-8">
-        <form asp-area="Admin" asp-controller="Category" asp-action="Create" method="post" enctype="multipart/form-data" class="space-y-6">
-            <div asp-validation-summary="ModelOnly" class="text-red-500 text-sm font-medium"></div>
-
+        <form id="create-category-form" class="space-y-6" novalidate>
             <!-- Tên danh mục -->
             <div>
-                <label asp-for="Name" class="block text-sm font-medium text-on-surface mb-2">Tên danh mục <span class="text-red-500">*</span></label>
-                <input asp-for="Name" type="text" placeholder="Ví dụ: Ghế sofa, Bàn ăn, Đèn trang trí..." class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm transition-all" />
-                <span asp-validation-for="Name" class="text-red-500 text-xs mt-1 block"></span>
+                <label for="Name" class="block text-sm font-medium text-on-surface mb-2">Tên danh mục <span class="text-red-500">*</span></label>
+                <input id="Name" name="Name" type="text" placeholder="Ví dụ: Ghế sofa, Bàn ăn, Đèn trang trí..." class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm transition-all" required />
+                <span id="error-Name" class="error-msg text-red-500 text-xs mt-1 block"></span>
             </div>
 
             <!-- Mô tả danh mục -->
             <div>
-                <label asp-for="Description" class="block text-sm font-medium text-on-surface mb-2">Mô tả danh mục</label>
-                <textarea asp-for="Description" rows="4" placeholder="Nhập mô tả tóm tắt về danh mục này..." class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm transition-all resize-y"></textarea>
-                <span asp-validation-for="Description" class="text-red-500 text-xs mt-1 block"></span>
+                <label for="Description" class="block text-sm font-medium text-on-surface mb-2">Mô tả danh mục</label>
+                <textarea id="Description" name="Description" rows="4" placeholder="Nhập mô tả tóm tắt về danh mục này..." class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm transition-all resize-y"></textarea>
+                <span id="error-Description" class="error-msg text-red-500 text-xs mt-1 block"></span>
             </div>
 
             <!-- Hình ảnh danh mục -->
@@ -37,6 +33,7 @@
                 <label for="imageFile" class="block text-sm font-medium text-on-surface mb-2">Hình ảnh danh mục</label>
                 <input id="imageFile" name="imageFile" type="file" accept="image/*" class="w-full px-4 py-2 rounded-lg border border-outline-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm bg-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all cursor-pointer" />
                 <p class="text-xs text-on-surface-variant mt-1">Chọn file ảnh đại diện cho danh mục sản phẩm này.</p>
+                <span id="error-imageFile" class="error-msg text-red-500 text-xs mt-1 block"></span>
             </div>
 
             <!-- Các nút hành động -->
@@ -51,3 +48,59 @@
         </form>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.getElementById("create-category-form").addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            // Clear old error messages
+            document.querySelectorAll(".error-msg").forEach(el => el.textContent = "");
+
+            const form = e.target;
+            const formData = new FormData(form);
+
+            // Client-side quick check
+            const nameInput = document.getElementById("Name");
+            if (!nameInput.value.trim()) {
+                document.getElementById("error-Name").textContent = "Tên danh mục là bắt buộc.";
+                nameInput.focus();
+                return;
+            }
+
+            try {
+                const response = await fetch("/api/categories", {
+                    method: "POST",
+                    body: formData
+                });
+
+                if (response.ok) {
+                    alert("Thêm danh mục mới thành công!");
+                    window.location.href = "/Admin/Category";
+                } else if (response.status === 400) {
+                    const errData = await response.json();
+                    if (errData.errors) {
+                        // Display field-specific validation errors from ModelState
+                        for (const [key, messages] of Object.entries(errData.errors)) {
+                            // Find error span matching field name (e.g. error-Name)
+                            const errorSpan = document.getElementById(`error-${key}`);
+                            if (errorSpan) {
+                                errorSpan.textContent = messages.join(", ");
+                            }
+                        }
+                    } else {
+                        alert(errData.message || "Dữ liệu gửi lên không hợp lệ.");
+                    }
+                } else if (response.status === 401 || response.status === 403) {
+                    alert("Bạn không có quyền thực hiện thao tác này. Vui lòng đăng nhập lại với tài khoản Admin.");
+                } else {
+                    const errText = await response.text();
+                    alert("Lỗi máy chủ: " + (errText || response.statusText));
+                }
+            } catch (error) {
+                console.error("Lỗi khi tạo danh mục:", error);
+                alert("Đã xảy ra lỗi hệ thống khi kết nối tới máy chủ.");
+            }
+        });
+    </script>
+}

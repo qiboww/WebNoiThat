@@ -1,7 +1,6 @@
-@model BanNoiThat.Models.Category
-
 @{
-    ViewData["Title"] = "Chỉnh sửa danh mục - " + Model.Name;
+    ViewData["Title"] = "Chỉnh sửa danh mục";
+    var categoryId = ViewBag.CategoryId;
 }
 
 <div class="max-w-2xl mx-auto px-6 py-10">
@@ -15,40 +14,36 @@
     </div>
 
     <div class="bg-white rounded-xl shadow-sm border border-outline-variant/30 p-6 md:p-8">
-        <form asp-area="Admin" asp-controller="Category" asp-action="Edit" method="post" enctype="multipart/form-data" class="space-y-6">
-            <div asp-validation-summary="ModelOnly" class="text-red-500 text-sm font-medium"></div>
+        <!-- Loading indicator -->
+        <div id="loading-container" class="py-10 text-center text-on-surface-variant">
+            <div class="inline-block w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mb-2"></div>
+            <p>Đang tải thông tin danh mục...</p>
+        </div>
 
+        <form id="edit-category-form" class="space-y-6 hidden" novalidate>
             <!-- Hidden Fields -->
-            <input type="hidden" asp-for="CategoryId" />
-            <input type="hidden" asp-for="ImageUrl" />
+            <input type="hidden" id="CategoryId" name="CategoryId" value="@categoryId" />
 
             <!-- Tên danh mục -->
             <div>
-                <label asp-for="Name" class="block text-sm font-medium text-on-surface mb-2">Tên danh mục <span class="text-red-500">*</span></label>
-                <input asp-for="Name" type="text" placeholder="Ví dụ: Ghế sofa, Bàn ăn, Đèn trang trí..." class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm transition-all" />
-                <span asp-validation-for="Name" class="text-red-500 text-xs mt-1 block"></span>
+                <label for="Name" class="block text-sm font-medium text-on-surface mb-2">Tên danh mục <span class="text-red-500">*</span></label>
+                <input id="Name" name="Name" type="text" placeholder="Ví dụ: Ghế sofa, Bàn ăn, Đèn trang trí..." class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm transition-all" required />
+                <span id="error-Name" class="error-msg text-red-500 text-xs mt-1 block"></span>
             </div>
 
             <!-- Mô tả danh mục -->
             <div>
-                <label asp-for="Description" class="block text-sm font-medium text-on-surface mb-2">Mô tả danh mục</label>
-                <textarea asp-for="Description" rows="4" placeholder="Nhập mô tả tóm tắt về danh mục này..." class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm transition-all resize-y"></textarea>
-                <span asp-validation-for="Description" class="text-red-500 text-xs mt-1 block"></span>
+                <label for="Description" class="block text-sm font-medium text-on-surface mb-2">Mô tả danh mục</label>
+                <textarea id="Description" name="Description" rows="4" placeholder="Nhập mô tả tóm tắt về danh mục này..." class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm transition-all resize-y"></textarea>
+                <span id="error-Description" class="error-msg text-red-500 text-xs mt-1 block"></span>
             </div>
 
             <!-- Ảnh hiện tại -->
             <div>
                 <label class="block text-sm font-medium text-on-surface mb-2">Hình ảnh hiện tại</label>
                 <div class="flex items-center gap-4">
-                    <div class="w-20 h-20 rounded-lg overflow-hidden border border-outline-variant bg-surface-variant/20 flex items-center justify-center">
-                        @if (!string.IsNullOrEmpty(Model.ImageUrl))
-                        {
-                            <img src="@Model.ImageUrl" alt="@Model.Name" class="w-full h-full object-cover" />
-                        }
-                        else
-                        {
-                            <span class="material-symbols-outlined text-on-surface-variant/30 text-3xl">folder</span>
-                        }
+                    <div id="current-image-container" class="w-20 h-20 rounded-lg overflow-hidden border border-outline-variant bg-surface-variant/20 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-on-surface-variant/30 text-3xl">folder</span>
                     </div>
                     <div class="text-xs text-on-surface-variant">
                         Nếu bạn không muốn thay đổi ảnh, vui lòng bỏ trống phần "Tải lên ảnh mới" bên dưới.
@@ -61,6 +56,7 @@
                 <label for="imageFile" class="block text-sm font-medium text-on-surface mb-2">Tải lên ảnh mới</label>
                 <input id="imageFile" name="imageFile" type="file" accept="image/*" class="w-full px-4 py-2 rounded-lg border border-outline-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm bg-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all cursor-pointer" />
                 <p class="text-xs text-on-surface-variant mt-1">Chọn file ảnh mới để thay đổi ảnh hiện tại của danh mục sản phẩm này.</p>
+                <span id="error-imageFile" class="error-msg text-red-500 text-xs mt-1 block"></span>
             </div>
 
             <!-- Các nút hành động -->
@@ -75,3 +71,101 @@
         </form>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        const categoryId = @categoryId;
+
+        document.addEventListener("DOMContentLoaded", function () {
+            fetchCategoryData();
+        });
+
+        async function fetchCategoryData() {
+            try {
+                const response = await fetch(`/api/categories/${categoryId}`);
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        alert("Không tìm thấy danh mục này!");
+                    } else {
+                        alert("Lỗi tải thông tin danh mục.");
+                    }
+                    window.location.href = "/Admin/Category";
+                    return;
+                }
+
+                const category = await response.json();
+
+                // Populate fields
+                document.getElementById("Name").value = category.name;
+                document.getElementById("Description").value = category.description || "";
+                
+                // Show current image
+                if (category.imageUrl) {
+                    const imgContainer = document.getElementById("current-image-container");
+                    imgContainer.innerHTML = `<img src="${category.imageUrl}" alt="${category.name}" class="w-full h-full object-cover" />`;
+                }
+
+                // Show form and hide loading
+                document.getElementById("loading-container").classList.add("hidden");
+                document.getElementById("edit-category-form").classList.remove("hidden");
+                
+                // Update title
+                document.title = "Chỉnh sửa danh mục - " + category.name;
+            } catch (error) {
+                console.error("Lỗi khi tải thông tin danh mục:", error);
+                alert("Đã xảy ra lỗi kết nối khi tải thông tin danh mục.");
+                window.location.href = "/Admin/Category";
+            }
+        }
+
+        document.getElementById("edit-category-form").addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            // Clear old error messages
+            document.querySelectorAll(".error-msg").forEach(el => el.textContent = "");
+
+            const form = e.target;
+            const formData = new FormData(form);
+
+            // Client-side quick check
+            const nameInput = document.getElementById("Name");
+            if (!nameInput.value.trim()) {
+                document.getElementById("error-Name").textContent = "Tên danh mục là bắt buộc.";
+                nameInput.focus();
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/categories/${categoryId}`, {
+                    method: "PUT",
+                    body: formData
+                });
+
+                if (response.ok) {
+                    alert("Cập nhật danh mục thành công!");
+                    window.location.href = "/Admin/Category";
+                } else if (response.status === 400) {
+                    const errData = await response.json();
+                    if (errData.errors) {
+                        for (const [key, messages] of Object.entries(errData.errors)) {
+                            const errorSpan = document.getElementById(`error-${key}`);
+                            if (errorSpan) {
+                                errorSpan.textContent = messages.join(", ");
+                            }
+                        }
+                    } else {
+                        alert(errData.message || "Dữ liệu gửi lên không hợp lệ.");
+                    }
+                } else if (response.status === 401 || response.status === 403) {
+                    alert("Bạn không có quyền thực hiện thao tác này. Vui lòng đăng nhập lại với tài khoản Admin.");
+                } else {
+                    const errText = await response.text();
+                    alert("Lỗi máy chủ: " + (errText || response.statusText));
+                }
+            } catch (error) {
+                console.error("Lỗi khi cập nhật danh mục:", error);
+                alert("Đã xảy ra lỗi hệ thống khi kết nối tới máy chủ.");
+            }
+        });
+    </script>
+}

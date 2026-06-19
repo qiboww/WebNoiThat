@@ -1,7 +1,6 @@
-@model BanNoiThat.Models.Product
-
 @{
-    ViewData["Title"] = "Chỉnh sửa sản phẩm - " + Model.Name;
+    ViewData["Title"] = "Chỉnh sửa sản phẩm";
+    var productId = ViewBag.ProductId;
 }
 
 <div class="max-w-3xl mx-auto px-6 py-10">
@@ -15,65 +14,60 @@
     </div>
 
     <div class="bg-white rounded-xl shadow-sm border border-outline-variant/30 p-6 md:p-8">
-        <form asp-area="Admin" asp-controller="Product" asp-action="Edit" method="post" enctype="multipart/form-data" class="space-y-6">
-            <div asp-validation-summary="ModelOnly" class="text-red-500 text-sm font-medium"></div>
-            
+        <!-- Loading spinner -->
+        <div id="loading-container" class="py-10 text-center text-on-surface-variant">
+            <div class="inline-block w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mb-2"></div>
+            <p>Đang tải thông tin sản phẩm...</p>
+        </div>
+
+        <form id="edit-product-form" class="space-y-6 hidden" novalidate>
             <!-- Hidden Fields -->
-            <input type="hidden" asp-for="ProductId" />
-            <input type="hidden" asp-for="ImageUrl" />
-            <input type="hidden" asp-for="Model3DUrl" />
+            <input type="hidden" id="ProductId" name="ProductId" value="@productId" />
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Tên sản phẩm -->
                 <div class="md:col-span-2">
-                    <label asp-for="Name" class="block text-sm font-medium text-on-surface mb-2">Tên sản phẩm <span class="text-red-500">*</span></label>
-                    <input asp-for="Name" type="text" placeholder="Ví dụ: Bàn ăn gỗ sồi Helsinki" class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm transition-all" />
-                    <span asp-validation-for="Name" class="text-red-500 text-xs mt-1 block"></span>
+                    <label for="Name" class="block text-sm font-medium text-on-surface mb-2">Tên sản phẩm <span class="text-red-500">*</span></label>
+                    <input id="Name" name="Name" type="text" placeholder="Ví dụ: Bàn ăn gỗ sồi Helsinki" class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm transition-all" required />
+                    <span id="error-Name" class="error-msg text-red-500 text-xs mt-1 block"></span>
                 </div>
 
                 <!-- Danh mục sản phẩm -->
                 <div>
-                    <label asp-for="CategoryId" class="block text-sm font-medium text-on-surface mb-2">Danh mục <span class="text-red-500">*</span></label>
-                    <select asp-for="CategoryId" asp-items="ViewBag.CategoryId" class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm bg-white transition-all">
-                        <option value="">-- Chọn danh mục --</option>
+                    <label for="CategoryId" class="block text-sm font-medium text-on-surface mb-2">Danh mục <span class="text-red-500">*</span></label>
+                    <select id="CategoryId" name="CategoryId" class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm bg-white transition-all" required>
+                        <option value="">-- Đang tải danh mục... --</option>
                     </select>
-                    <span asp-validation-for="CategoryId" class="text-red-500 text-xs mt-1 block"></span>
+                    <span id="error-CategoryId" class="error-msg text-red-500 text-xs mt-1 block"></span>
                 </div>
 
                 <!-- Chất liệu -->
                 <div>
-                    <label asp-for="Material" class="block text-sm font-medium text-on-surface mb-2">Chất liệu</label>
-                    <input asp-for="Material" type="text" placeholder="Ví dụ: Gỗ sồi tự nhiên" class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm transition-all" />
-                    <span asp-validation-for="Material" class="text-red-500 text-xs mt-1 block"></span>
+                    <label for="Material" class="block text-sm font-medium text-on-surface mb-2">Chất liệu <span class="text-red-500">*</span></label>
+                    <input id="Material" name="Material" type="text" placeholder="Ví dụ: Gỗ sồi tự nhiên" class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm transition-all" required />
+                    <span id="error-Material" class="error-msg text-red-500 text-xs mt-1 block"></span>
                 </div>
 
                 <!-- Giá bán -->
                 <div>
-                    <label asp-for="Price" class="block text-sm font-medium text-on-surface mb-2">Giá bán (₫) <span class="text-red-500">*</span></label>
-                    <input asp-for="Price" type="number" min="0" step="any" placeholder="Ví dụ: 12500000" class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm transition-all" />
-                    <span asp-validation-for="Price" class="text-red-500 text-xs mt-1 block"></span>
+                    <label for="Price" class="block text-sm font-medium text-on-surface mb-2">Giá bán (₫) <span class="text-red-500">*</span></label>
+                    <input id="Price" name="Price" type="number" min="0" step="any" placeholder="Ví dụ: 12500000" class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm transition-all" required />
+                    <span id="error-Price" class="error-msg text-red-500 text-xs mt-1 block"></span>
                 </div>
 
                 <!-- Số lượng tồn -->
                 <div>
-                    <label asp-for="StockQuantity" class="block text-sm font-medium text-on-surface mb-2">Số lượng kho <span class="text-red-500">*</span></label>
-                    <input asp-for="StockQuantity" type="number" min="0" placeholder="Ví dụ: 10" class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm transition-all" />
-                    <span asp-validation-for="StockQuantity" class="text-red-500 text-xs mt-1 block"></span>
+                    <label for="StockQuantity" class="block text-sm font-medium text-on-surface mb-2">Số lượng kho <span class="text-red-500">*</span></label>
+                    <input id="StockQuantity" name="StockQuantity" type="number" min="0" placeholder="Ví dụ: 10" class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm transition-all" required />
+                    <span id="error-StockQuantity" class="error-msg text-red-500 text-xs mt-1 block"></span>
                 </div>
 
                 <!-- Ảnh hiện tại -->
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-on-surface mb-2">Hình ảnh hiện tại</label>
                     <div class="flex items-center gap-4">
-                        <div class="w-20 h-20 rounded-lg overflow-hidden border border-outline-variant bg-surface-variant/20 flex items-center justify-center">
-                            @if (!string.IsNullOrEmpty(Model.ImageUrl))
-                            {
-                                <img src="@Model.ImageUrl" alt="@Model.Name" class="w-full h-full object-cover" />
-                            }
-                            else
-                            {
-                                <span class="material-symbols-outlined text-on-surface-variant/30 text-3xl">image</span>
-                            }
+                        <div id="current-image" class="w-20 h-20 rounded-lg overflow-hidden border border-outline-variant bg-surface-variant/20 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-on-surface-variant/30 text-3xl">image</span>
                         </div>
                         <div class="text-xs text-on-surface-variant">
                             Nếu bạn không muốn thay đổi ảnh, vui lòng bỏ trống phần "Tải lên ảnh mới" bên dưới.
@@ -86,31 +80,18 @@
                     <label for="imageFile" class="block text-sm font-medium text-on-surface mb-2">Tải lên ảnh mới</label>
                     <input id="imageFile" name="imageFile" type="file" accept="image/*" class="w-full px-4 py-2 rounded-lg border border-outline-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm bg-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all cursor-pointer" />
                     <p class="text-xs text-on-surface-variant mt-1">Chọn file ảnh mới để thay đổi ảnh hiện tại của sản phẩm.</p>
+                    <span id="error-imageFile" class="error-msg text-red-500 text-xs mt-1 block"></span>
                 </div>
 
                 <!-- Mô hình 3D hiện tại -->
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-on-surface mb-2">Mô hình 3D hiện tại</label>
                     <div class="flex items-center gap-4">
-                        <div class="w-20 h-20 rounded-lg overflow-hidden border border-outline-variant bg-surface-variant/20 flex items-center justify-center">
-                            @if (!string.IsNullOrEmpty(Model.Model3DUrl))
-                            {
-                                <span class="material-symbols-outlined text-primary text-3xl">view_in_ar</span>
-                            }
-                            else
-                            {
-                                <span class="material-symbols-outlined text-on-surface-variant/30 text-3xl">view_in_ar</span>
-                            }
+                        <div id="current-3d-model" class="w-20 h-20 rounded-lg overflow-hidden border border-outline-variant bg-surface-variant/20 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-on-surface-variant/30 text-3xl">view_in_ar</span>
                         </div>
                         <div class="text-xs text-on-surface-variant">
-                            @if (!string.IsNullOrEmpty(Model.Model3DUrl))
-                            {
-                                <span class="text-green-600 font-semibold">Đã tải lên mô hình 3D (@Model.Model3DUrl.Split('/').Last())</span>
-                            }
-                            else
-                            {
-                                <span>Chưa có mô hình 3D cho sản phẩm này.</span>
-                            }
+                            <span id="status-3d-model">Chưa có mô hình 3D cho sản phẩm này.</span>
                             <div class="mt-1 text-on-surface-variant/70">
                                 Nếu không muốn thay đổi mô hình 3D, vui lòng bỏ trống phần "Tải lên mô hình 3D mới" bên dưới.
                             </div>
@@ -123,13 +104,14 @@
                     <label for="model3dFile" class="block text-sm font-medium text-on-surface mb-2">Tải lên mô hình 3D mới (.glb)</label>
                     <input id="model3dFile" name="model3dFile" type="file" accept=".glb" class="w-full px-4 py-2 rounded-lg border border-outline-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm bg-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all cursor-pointer" />
                     <p class="text-xs text-on-surface-variant mt-1">Chọn file mô hình 3D (.glb) mới để thay thế mô hình 3D hiện tại.</p>
+                    <span id="error-model3dFile" class="error-msg text-red-500 text-xs mt-1 block"></span>
                 </div>
 
                 <!-- Mô tả sản phẩm -->
                 <div class="md:col-span-2">
-                    <label asp-for="Description" class="block text-sm font-medium text-on-surface mb-2">Mô tả sản phẩm</label>
-                    <textarea asp-for="Description" rows="4" placeholder="Nhập mô tả chi tiết sản phẩm tại đây..." class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm transition-all resize-y"></textarea>
-                    <span asp-validation-for="Description" class="text-red-500 text-xs mt-1 block"></span>
+                    <label for="Description" class="block text-sm font-medium text-on-surface mb-2">Mô tả sản phẩm</label>
+                    <textarea id="Description" name="Description" rows="4" placeholder="Nhập mô tả chi tiết sản phẩm tại đây..." class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm transition-all resize-y"></textarea>
+                    <span id="error-Description" class="error-msg text-red-500 text-xs mt-1 block"></span>
                 </div>
             </div>
 
@@ -145,3 +127,137 @@
         </form>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        const productId = @productId;
+
+        document.addEventListener("DOMContentLoaded", async function () {
+            await loadCategories();
+            await fetchProductData();
+        });
+
+        async function loadCategories() {
+            const selectEl = document.getElementById("CategoryId");
+            try {
+                const response = await fetch("/api/categories");
+                if (!response.ok) throw new Error("Lỗi tải danh mục.");
+                
+                const categories = await response.json();
+                
+                let html = '<option value="">-- Chọn danh mục --</option>';
+                categories.forEach(cat => {
+                    html += `<option value="${cat.categoryId}">${cat.name}</option>`;
+                });
+                
+                selectEl.innerHTML = html;
+            } catch (error) {
+                console.error(error);
+                selectEl.innerHTML = '<option value="">-- Lỗi tải danh mục --</option>';
+            }
+        }
+
+        async function fetchProductData() {
+            try {
+                const response = await fetch(`/api/products/${productId}`);
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        alert("Không tìm thấy sản phẩm này!");
+                    } else {
+                        alert("Lỗi tải thông tin sản phẩm.");
+                    }
+                    window.location.href = "/Admin/Product";
+                    return;
+                }
+
+                const product = await response.json();
+
+                // Populate fields
+                document.getElementById("Name").value = product.name;
+                document.getElementById("CategoryId").value = product.categoryId;
+                document.getElementById("Material").value = product.material || "";
+                document.getElementById("Price").value = product.price;
+                document.getElementById("StockQuantity").value = product.stockQuantity;
+                document.getElementById("Description").value = product.description || "";
+
+                // Show current image
+                if (product.imageUrl) {
+                    document.getElementById("current-image").innerHTML = `<img src="${product.imageUrl}" alt="${product.name}" class="w-full h-full object-cover" />`;
+                }
+
+                // Show current 3D model status
+                if (product.model3DUrl) {
+                    document.getElementById("current-3d-model").innerHTML = `<span class="material-symbols-outlined text-primary text-3xl">view_in_ar</span>`;
+                    const modelName = product.model3DUrl.split('/').pop();
+                    document.getElementById("status-3d-model").innerHTML = `<span class="text-green-600 font-semibold">Đã tải lên mô hình 3D (${modelName})</span>`;
+                }
+
+                // Hide loading, show form
+                document.getElementById("loading-container").classList.add("hidden");
+                document.getElementById("edit-product-form").classList.remove("hidden");
+
+                document.title = "Chỉnh sửa sản phẩm - " + product.name;
+            } catch (error) {
+                console.error("Lỗi khi tải chi tiết sản phẩm:", error);
+                alert("Đã xảy ra lỗi kết nối khi tải chi tiết sản phẩm.");
+                window.location.href = "/Admin/Product";
+            }
+        }
+
+        document.getElementById("edit-product-form").addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            // Clear errors
+            document.querySelectorAll(".error-msg").forEach(el => el.textContent = "");
+
+            const form = e.target;
+            const formData = new FormData(form);
+
+            // Simple check
+            if (!document.getElementById("Name").value.trim()) {
+                document.getElementById("error-Name").textContent = "Tên sản phẩm là bắt buộc.";
+                return;
+            }
+            if (!document.getElementById("CategoryId").value) {
+                document.getElementById("error-CategoryId").textContent = "Vui lòng chọn danh mục.";
+                return;
+            }
+            if (!document.getElementById("Price").value || parseFloat(document.getElementById("Price").value) < 0) {
+                document.getElementById("error-Price").textContent = "Giá bán hợp lệ là bắt buộc.";
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/products/${productId}`, {
+                    method: "PUT",
+                    body: formData
+                });
+
+                if (response.ok) {
+                    alert("Cập nhật sản phẩm thành công!");
+                    window.location.href = "/Admin/Product";
+                } else if (response.status === 400) {
+                    const errData = await response.json();
+                    if (errData.errors) {
+                        for (const [key, messages] of Object.entries(errData.errors)) {
+                            const errorSpan = document.getElementById(`error-${key}`);
+                            if (errorSpan) {
+                                errorSpan.textContent = messages.join(", ");
+                            }
+                        }
+                    } else {
+                        alert(errData.message || "Dữ liệu gửi lên không hợp lệ.");
+                    }
+                } else if (response.status === 401 || response.status === 403) {
+                    alert("Bạn không có quyền thực hiện thao tác này. Vui lòng đăng nhập lại với tài khoản Admin.");
+                } else {
+                    const errText = await response.text();
+                    alert("Lỗi hệ thống: " + (errText || response.statusText));
+                }
+            } catch (error) {
+                console.error("Lỗi khi cập nhật sản phẩm:", error);
+                alert("Đã xảy ra lỗi hệ thống khi kết nối tới máy chủ.");
+            }
+        });
+    </script>
+}

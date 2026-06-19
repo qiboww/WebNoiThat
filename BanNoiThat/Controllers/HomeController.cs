@@ -1,5 +1,4 @@
 using BanNoiThat.Models;
-using BanNoiThat.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -7,47 +6,21 @@ namespace BanNoiThat.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ICategoryRepository _categoryRepo;
-        private readonly IProductRepository _productRepo;
-
-        public HomeController(ICategoryRepository categoryRepo, IProductRepository productRepo)
+        public IActionResult Index()
         {
-            _categoryRepo = categoryRepo;
-            _productRepo = productRepo;
+            return View();
         }
 
-        public async Task<IActionResult> Index()
+        public IActionResult Products(int? categoryId)
         {
-            var categories = await _categoryRepo.GetAllCategoriesAsync();
-            return View(categories);
-        }
-
-        // GET: Home/Products
-        public async Task<IActionResult> Products(int? categoryId)
-        {
-            var products = await _productRepo.GetProductsByCategoryAsync(categoryId);
-            var categories = await _categoryRepo.GetAllCategoriesAsync();
-
-            if (categoryId.HasValue)
-            {
-                var category = categories.FirstOrDefault(c => c.CategoryId == categoryId.Value);
-                ViewBag.CategoryName = category?.Name;
-            }
-
-            ViewBag.Categories = categories;
             ViewBag.SelectedCategoryId = categoryId;
-            return View(products);
+            return View();
         }
 
-        public async Task<IActionResult> ProductDetails(int? id)
+        public IActionResult ProductDetails(int id)
         {
-            if (id == null) return NotFound();
-
-            var product = await _productRepo.GetProductWithCategoryAsync(id.Value);
-
-            if (product == null) return NotFound();
-
-            return View(product);
+            ViewBag.ProductId = id;
+            return View();
         }
 
         public IActionResult Privacy()

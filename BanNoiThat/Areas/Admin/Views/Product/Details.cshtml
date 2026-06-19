@@ -1,7 +1,6 @@
-@model BanNoiThat.Models.Product
-
 @{
-    ViewData["Title"] = "Chi tiết sản phẩm - " + Model.Name;
+    ViewData["Title"] = "Chi tiết sản phẩm";
+    var productId = ViewBag.ProductId;
 }
 
 <div class="max-w-4xl mx-auto px-6 py-10">
@@ -13,69 +12,171 @@
             </a>
             <h1 class="font-headline text-3xl font-semibold text-primary">Chi tiết sản phẩm</h1>
         </div>
-        <div class="flex items-center gap-3">
-            <a asp-area="Admin" asp-controller="Product" asp-action="Edit" asp-route-id="@Model.ProductId" class="inline-flex items-center gap-1.5 border border-primary text-primary hover:bg-primary/5 px-5 py-2.5 rounded-full font-medium transition-all text-sm">
+        <div id="action-buttons-container" class="flex items-center gap-3 hidden">
+            <a id="btn-edit" href="/Admin/Product/Edit/@productId" class="inline-flex items-center gap-1.5 border border-primary text-primary hover:bg-primary/5 px-5 py-2.5 rounded-full font-medium transition-all text-sm">
                 <span class="material-symbols-outlined text-[18px]">edit</span>
                 <span>Chỉnh sửa</span>
             </a>
-            <a asp-area="Admin" asp-controller="Product" asp-action="Delete" asp-route-id="@Model.ProductId" class="inline-flex items-center gap-1.5 bg-red-600 text-white hover:bg-red-500 px-5 py-2.5 rounded-full font-medium transition-all text-sm shadow-sm hover:shadow">
+            <button id="btn-delete" class="inline-flex items-center gap-1.5 bg-red-600 text-white hover:bg-red-500 px-5 py-2.5 rounded-full font-medium transition-all text-sm shadow-sm hover:shadow cursor-pointer">
                 <span class="material-symbols-outlined text-[18px]">delete</span>
                 <span>Xóa sản phẩm</span>
-            </a>
+            </button>
         </div>
     </div>
 
-    <div class="bg-white rounded-xl shadow-sm border border-outline-variant/30 overflow-hidden p-6 md:p-8">
+    <!-- Loading spinner -->
+    <div id="loading-container" class="py-20 text-center text-on-surface-variant">
+        <div class="inline-block w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mb-2"></div>
+        <p>Đang tải chi tiết sản phẩm...</p>
+    </div>
+
+    <div id="product-details-content" class="bg-white rounded-xl shadow-sm border border-outline-variant/30 overflow-hidden p-6 md:p-8 hidden">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             <!-- Hình ảnh sản phẩm -->
-            <div class="aspect-square rounded-lg overflow-hidden bg-surface-variant/20 border border-outline-variant/30 flex items-center justify-center relative">
-                @if (!string.IsNullOrEmpty(Model.ImageUrl))
-                {
-                    <img src="@Model.ImageUrl" alt="@Model.Name" class="w-full h-full object-cover" />
-                }
-                else
-                {
-                    <div class="flex flex-col items-center justify-center text-on-surface-variant/30 p-8">
-                        <span class="material-symbols-outlined text-7xl block mb-2">image</span>
-                        <span class="text-sm">Không có hình ảnh</span>
-                    </div>
-                }
+            <div id="product-image" class="aspect-square rounded-lg overflow-hidden bg-surface-variant/20 border border-outline-variant/30 flex items-center justify-center relative">
+                <div class="flex flex-col items-center justify-center text-on-surface-variant/30 p-8">
+                    <span class="material-symbols-outlined text-7xl block mb-2">image</span>
+                    <span class="text-sm">Không có hình ảnh</span>
+                </div>
             </div>
 
             <!-- Thông tin chi tiết -->
             <div class="flex flex-col justify-between space-y-6">
                 <div class="space-y-4">
                     <div>
-                        <span class="bg-secondary-container text-primary text-xs px-2.5 py-1 rounded-full font-semibold uppercase tracking-wider">
-                            @(Model.Category?.Name ?? "N/A")
+                        <span id="product-category" class="bg-secondary-container text-primary text-xs px-2.5 py-1 rounded-full font-semibold uppercase tracking-wider">
+                            N/A
                         </span>
-                        <h2 class="font-headline text-2xl font-semibold text-on-surface mt-2">@Model.Name</h2>
+                        <h2 id="product-name" class="font-headline text-2xl font-semibold text-on-surface mt-2"></h2>
                     </div>
 
                     <div class="border-t border-b border-outline-variant/20 py-4">
                         <div class="text-xs text-on-surface-variant uppercase tracking-wider font-semibold">Giá bán</div>
-                        <div class="text-3xl font-semibold text-primary mt-1">@Model.Price.ToString("N0")₫</div>
+                        <div id="product-price" class="text-3xl font-semibold text-primary mt-1">0₫</div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-4 text-sm">
                         <div class="bg-surface-variant/10 p-3 rounded-lg border border-outline-variant/20">
                             <div class="text-xs text-on-surface-variant font-medium">Chất liệu</div>
-                            <div class="text-on-surface font-semibold mt-1">@(string.IsNullOrEmpty(Model.Material) ? "Chưa cập nhật" : Model.Material)</div>
+                            <div id="product-material" class="text-on-surface font-semibold mt-1">Chưa cập nhật</div>
                         </div>
                         <div class="bg-surface-variant/10 p-3 rounded-lg border border-outline-variant/20">
                             <div class="text-xs text-on-surface-variant font-medium">Số lượng kho</div>
-                            <div class="font-semibold mt-1 @(Model.StockQuantity > 0 ? "text-green-600" : "text-red-500")">
-                                @Model.StockQuantity chiếc @(Model.StockQuantity > 0 ? "(Còn hàng)" : "(Hết hàng)")
+                            <div id="product-stock" class="font-semibold mt-1">
+                                0 chiếc
                             </div>
                         </div>
+                    </div>
+
+                    <!-- Trạng thái 3D -->
+                    <div id="status-3d-container" class="bg-surface-variant/5 p-3 rounded-lg border border-outline-variant/20 text-xs flex items-center gap-2">
+                        <span class="material-symbols-outlined text-on-surface-variant text-[18px]">view_in_ar</span>
+                        <span id="status-3d-text" class="text-on-surface-variant">Sản phẩm này chưa có mô hình 3D tương tác.</span>
                     </div>
                 </div>
 
                 <div class="space-y-2">
                     <h3 class="text-sm font-semibold text-on-surface uppercase tracking-wider">Mô tả sản phẩm</h3>
-                    <p class="text-sm text-on-surface-variant leading-relaxed whitespace-pre-wrap">@(string.IsNullOrEmpty(Model.Description) ? "Không có mô tả cho sản phẩm này." : Model.Description)</p>
+                    <p id="product-description" class="text-sm text-on-surface-variant leading-relaxed whitespace-pre-wrap">Không có mô tả cho sản phẩm này.</p>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        const productId = @productId;
+        let productNameGlobal = "";
+
+        document.addEventListener("DOMContentLoaded", function () {
+            fetchProductDetails();
+        });
+
+        async function fetchProductDetails() {
+            try {
+                const response = await fetch(`/api/products/${productId}`);
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        alert("Không tìm thấy sản phẩm này!");
+                    } else {
+                        alert("Lỗi tải chi tiết sản phẩm.");
+                    }
+                    window.location.href = "/Admin/Product";
+                    return;
+                }
+
+                const product = await response.json();
+                productNameGlobal = product.name;
+
+                // Populate UI
+                document.getElementById("product-name").textContent = product.name;
+                document.getElementById("product-category").textContent = product.category ? product.category.name : "Nội thất";
+                
+                const formattedPrice = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price);
+                document.getElementById("product-price").textContent = formattedPrice;
+                
+                document.getElementById("product-material").textContent = product.material || "Chưa cập nhật";
+                
+                const stockEl = document.getElementById("product-stock");
+                if (product.stockQuantity > 0) {
+                    stockEl.className = "font-semibold mt-1 text-green-600";
+                    stockEl.textContent = `${product.stockQuantity} chiếc (Còn hàng)`;
+                } else {
+                    stockEl.className = "font-semibold mt-1 text-red-500";
+                    stockEl.textContent = "0 chiếc (Hết hàng)";
+                }
+
+                document.getElementById("product-description").textContent = product.description || "Không có mô tả cho sản phẩm này.";
+
+                if (product.imageUrl) {
+                    document.getElementById("product-image").innerHTML = `<img src="${product.imageUrl}" alt="${product.name}" class="w-full h-full object-cover" />`;
+                }
+
+                if (product.model3DUrl) {
+                    const statusText = document.getElementById("status-3d-text");
+                    const modelName = product.model3DUrl.split('/').pop();
+                    statusText.className = "text-green-600 font-semibold";
+                    statusText.textContent = `Đã tích hợp mô hình 3D (${modelName}).`;
+                }
+
+                // Show content and hide loading
+                document.getElementById("loading-container").classList.add("hidden");
+                document.getElementById("product-details-content").classList.remove("hidden");
+                document.getElementById("action-buttons-container").classList.remove("hidden");
+
+                document.getElementById("btn-delete").addEventListener("click", deleteProduct);
+
+                document.title = "Chi tiết sản phẩm - " + product.name;
+            } catch (error) {
+                console.error("Lỗi khi tải chi tiết sản phẩm:", error);
+                alert("Đã xảy ra lỗi hệ thống khi tải thông tin sản phẩm.");
+                window.location.href = "/Admin/Product";
+            }
+        }
+
+        async function deleteProduct() {
+            if (!confirm(`Bạn có chắc chắn muốn xóa sản phẩm "${productNameGlobal}" không?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/products/${productId}`, {
+                    method: "DELETE"
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    alert("Xóa sản phẩm thành công!");
+                    window.location.href = "/Admin/Product";
+                } else {
+                    alert(`Không thể xóa sản phẩm: ${result.message || "Lỗi không xác định."}`);
+                }
+            } catch (error) {
+                console.error("Lỗi khi xóa sản phẩm:", error);
+                alert("Đã xảy ra lỗi hệ thống khi xóa sản phẩm.");
+            }
+        }
+    </script>
+}
