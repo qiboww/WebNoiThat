@@ -45,22 +45,22 @@ builder.WebHost.ConfigureKestrel(options =>
 
 var app = builder.Build();
 
-// Khởi tạo dữ liệu tài khoản Admin
-//using (var scope = app.Services.CreateScope())
-//{
-//    var services = scope.ServiceProvider;
-//    try
-//    {
-//        var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
-//        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-//        await DbInitializer.SeedDataAsync(userManager, roleManager);
-//    }
-//    catch (Exception ex)
-//    {
-//        var logger = services.GetRequiredService<ILogger<Program>>();
-//        logger.LogError(ex, "Có lỗi xảy ra khi seed database.");
-//    }
-//}
+ //Khởi tạo dữ liệu tài khoản Admin
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+       var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+        await DbInitializer.SeedDataAsync(userManager, roleManager);
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Có lỗi xảy ra khi seed database.");
+    }
+}
 
 
 app.UseHttpsRedirection();

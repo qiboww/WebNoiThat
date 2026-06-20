@@ -138,7 +138,7 @@
                     stockEl.className = "font-semibold mt-1 text-green-600";
                     stockEl.textContent = `Còn hàng (${product.stockQuantity} chiếc)`;
                     cartContainer.innerHTML = `
-                        <button class="w-full bg-primary hover:bg-primary-container text-white py-3 px-6 rounded-full font-semibold shadow hover:shadow-md transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer">
+                        <button onclick="addToCart(${product.productId}, '${product.name.replace(/'/g, "\\'")}', ${product.price}, '${product.imageUrl || ''}'); window.location='/Cart';" class="w-full bg-primary hover:bg-primary-container text-white py-3 px-6 rounded-full font-semibold shadow hover:shadow-md transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer">
                             <span class="material-symbols-outlined">shopping_cart</span>
                             <span>Thêm vào giỏ hàng</span>
                         </button>
@@ -246,6 +246,63 @@
                 </model-viewer>
             `;
             is3DLoaded = true;
+        }
+
+        function addToCart(productId, name, price, imageUrl) {
+            try {
+                let cart = JSON.parse(localStorage.getItem("decor_cart") || "[]");
+                const existingIndex = cart.findIndex(item => item.productId === productId);
+                if (existingIndex > -1) {
+                    cart[existingIndex].quantity += 1;
+                } else {
+                    cart.push({
+                        productId: productId,
+                        name: name,
+                        price: price,
+                        imageUrl: imageUrl,
+                        quantity: 1
+                    });
+                }
+                localStorage.setItem("decor_cart", JSON.stringify(cart));
+                
+                if (typeof updateCartBadge === 'function') {
+                    updateCartBadge();
+                }
+
+                showToast("Đã thêm sản phẩm vào giỏ hàng!");
+            } catch (e) {
+                console.error("Lỗi thêm vào giỏ hàng:", e);
+                alert("Không thể thêm sản phẩm vào giỏ hàng.");
+            }
+        }
+
+        function showToast(message) {
+            let container = document.getElementById("toast-container");
+            if (!container) {
+                container = document.createElement("div");
+                container.id = "toast-container";
+                container.className = "fixed bottom-5 right-5 z-50 flex flex-col gap-2";
+                document.body.appendChild(container);
+            }
+            
+            const toast = document.createElement("div");
+            toast.className = "bg-primary text-white px-5 py-3 rounded-lg shadow-lg flex items-center gap-2 transition-all duration-300 transform translate-y-2 opacity-0 font-medium text-sm";
+            toast.innerHTML = `
+                <span class="material-symbols-outlined text-[20px]">check_circle</span>
+                <span>${message}</span>
+            `;
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.remove("translate-y-2", "opacity-0");
+            }, 10);
+            
+            setTimeout(() => {
+                toast.classList.add("translate-y-2", "opacity-0");
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 3000);
         }
     </script>
 }
