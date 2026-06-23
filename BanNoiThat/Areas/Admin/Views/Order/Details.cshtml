@@ -3,7 +3,7 @@
     var orderId = ViewBag.OrderId;
 }
 
-<div class="max-w-5xl mx-auto px-6 py-10">
+<div class="max-w-7xl mx-auto px-6 py-10">
     <!-- Nút quay lại và tiêu đề -->
     <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -36,12 +36,12 @@
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-sm">
                         <thead>
-                            <tr class="border-b border-outline-variant/20 text-on-surface-variant font-semibold pb-2">
-                                <th class="pb-3 pr-4">Hình ảnh</th>
-                                <th class="pb-3 pr-4">Sản phẩm</th>
-                                <th class="pb-3 px-4 text-center">Số lượng</th>
-                                <th class="pb-3 px-4 text-right">Đơn giá</th>
-                                <th class="pb-3 pl-4 text-right">Thành tiền</th>
+                            <tr class="border-b border-outline-variant/20 text-on-surface-variant font-semibold bg-secondary-container/10">
+                                <th class="py-4 px-6 whitespace-nowrap">Hình ảnh</th>
+                                <th class="py-4 px-6 min-w-[200px]">Sản phẩm</th>
+                                <th class="py-4 px-6 text-center whitespace-nowrap">Số lượng</th>
+                                <th class="py-4 px-6 text-right whitespace-nowrap">Đơn giá</th>
+                                <th class="py-4 px-6 text-right whitespace-nowrap">Thành tiền</th>
                             </tr>
                         </thead>
                         <tbody id="order-items-tbody" class="divide-y divide-outline-variant/20">
@@ -175,19 +175,19 @@
                     const formattedSubtotal = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(itemSubtotal);
 
                     itemsHtml += `
-                        <tr>
-                            <td class="py-3 pr-4">
+                        <tr class="hover:bg-surface-variant/5 transition-colors">
+                            <td class="py-4 px-6">
                                 <div class="w-12 h-12 rounded overflow-hidden bg-surface-variant/20 border border-outline-variant/30 flex items-center justify-center">
                                     ${imgHtml}
                                 </div>
                             </td>
-                            <td class="py-3 pr-4 font-medium text-on-surface">
-                                <span class="block">${item.productName}</span>
-                                <span class="text-xs text-on-surface-variant">ID sản phẩm: #${item.productId}</span>
+                            <td class="py-4 px-6 font-medium text-on-surface">
+                                <span class="block font-semibold">${item.productName}</span>
+                                <span class="text-xs text-on-surface-variant">ID: #${item.productId}</span>
                             </td>
-                            <td class="py-3 px-4 text-center text-on-surface-variant font-medium">${item.quantity}</td>
-                            <td class="py-3 px-4 text-right text-on-surface-variant">${formattedUnitPrice}</td>
-                            <td class="py-3 pl-4 text-right font-semibold text-primary">${formattedSubtotal}</td>
+                            <td class="py-4 px-6 text-center text-on-surface-variant font-medium">${item.quantity}</td>
+                            <td class="py-4 px-6 text-right text-on-surface-variant whitespace-nowrap">${formattedUnitPrice}</td>
+                            <td class="py-4 px-6 text-right font-semibold text-primary whitespace-nowrap">${formattedSubtotal}</td>
                         </tr>
                     `;
                 });
@@ -219,28 +219,28 @@
             const badgeEl = document.getElementById("current-status-badge");
             switch (status) {
                 case "Pending":
-                    badgeEl.className = "inline-flex items-center bg-yellow-50 text-yellow-800 border border-yellow-200 text-xs px-2.5 py-1 rounded-full font-semibold";
-                    badgeEl.textContent = "Chờ xử lý";
+                    badgeEl.className = "inline-flex items-center gap-1.5 bg-yellow-50 text-yellow-700 border border-yellow-200 text-xs px-2.5 py-0.5 rounded-full font-semibold";
+                    badgeEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-yellow-500"></span>Chờ xử lý`;
                     break;
                 case "Confirmed":
-                    badgeEl.className = "inline-flex items-center bg-blue-50 text-blue-800 border border-blue-200 text-xs px-2.5 py-1 rounded-full font-semibold";
-                    badgeEl.textContent = "Đã xác nhận";
+                    badgeEl.className = "inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 border border-blue-200 text-xs px-2.5 py-0.5 rounded-full font-semibold";
+                    badgeEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>Đã xác nhận`;
                     break;
                 case "Shipping":
-                    badgeEl.className = "inline-flex items-center bg-indigo-50 text-indigo-800 border border-indigo-200 text-xs px-2.5 py-1 rounded-full font-semibold";
-                    badgeEl.textContent = "Đang giao hàng";
+                    badgeEl.className = "inline-flex items-center gap-1.5 bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs px-2.5 py-0.5 rounded-full font-semibold";
+                    badgeEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>Đang giao hàng`;
                     break;
                 case "Completed":
-                    badgeEl.className = "inline-flex items-center bg-green-50 text-green-800 border border-green-200 text-xs px-2.5 py-1 rounded-full font-semibold";
-                    badgeEl.textContent = "Hoàn thành";
+                    badgeEl.className = "inline-flex items-center gap-1.5 bg-green-50 text-green-700 border border-green-200 text-xs px-2.5 py-0.5 rounded-full font-semibold";
+                    badgeEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-green-600"></span>Hoàn thành`;
                     break;
                 case "Cancelled":
-                    badgeEl.className = "inline-flex items-center bg-red-50 text-red-800 border border-red-200 text-xs px-2.5 py-1 rounded-full font-semibold";
-                    badgeEl.textContent = "Đã hủy";
+                    badgeEl.className = "inline-flex items-center gap-1.5 bg-red-50 text-red-700 border border-red-200 text-xs px-2.5 py-0.5 rounded-full font-semibold";
+                    badgeEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-red-600"></span>Đã hủy`;
                     break;
                 default:
-                    badgeEl.className = "inline-flex items-center bg-gray-50 text-gray-800 border border-gray-200 text-xs px-2.5 py-1 rounded-full font-semibold";
-                    badgeEl.textContent = status;
+                    badgeEl.className = "inline-flex items-center gap-1.5 bg-gray-50 text-gray-700 border border-gray-200 text-xs px-2.5 py-0.5 rounded-full font-semibold";
+                    badgeEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-gray-500"></span>${status}`;
             }
         }
 

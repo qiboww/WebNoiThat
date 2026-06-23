@@ -12,6 +12,11 @@ namespace BanNoiThat.Data
                 await roleManager.CreateAsync(new IdentityRole("Admin"));
             }
 
+            if (!await roleManager.RoleExistsAsync("User"))
+            {
+                await roleManager.CreateAsync(new IdentityRole("User"));
+            }
+
             if (await userManager.FindByEmailAsync("admin@webnoithat.com") == null)
             {
                 var adminUser = new ApplicationUser

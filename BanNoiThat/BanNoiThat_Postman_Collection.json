@@ -1,0 +1,445 @@
+{
+	"info": {
+		"name": "BanNoiThat RESTful API Collection",
+		"description": "Bộ sưu tập kiểm thử toàn bộ các Endpoint RESTful API (Categories & Products) của dự án BanNoiThat.\n\n### HƯỚNG DẪN XÁC THỰC (ADMIN):\nMột số API chỉnh sửa dữ liệu yêu cầu quyền Admin (mã trạng thái 401 hoặc 403 nếu chưa đăng nhập). Vì dự án dùng Cookie Auth mặc định của ASP.NET Core Identity:\n1. Mở trình duyệt và đăng nhập vào tài khoản Admin của bạn ở trang web.\n2. Sử dụng công cụ **Postman Interceptor** hoặc lấy Cookie tên `.AspNetCore.Identity.Application` từ trình duyệt dán vào tab **Headers / Cookie** của Postman khi gọi các API Admin.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Categories (Danh mục)",
+			"item": [
+				{
+					"name": "Lấy toàn bộ danh mục",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"categories"
+							]
+						},
+						"description": "Lấy danh sách tất cả các danh mục sản phẩm trong hệ thống (Không yêu cầu đăng nhập)."
+					},
+					"response": []
+				},
+				{
+					"name": "Lấy danh mục theo ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/categories/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"categories",
+								"1"
+							]
+						},
+						"description": "Lấy thông tin chi tiết của một danh mục cụ thể bằng ID."
+					},
+					"response": []
+				},
+				{
+					"name": "Lấy danh mục kèm sản phẩm thuộc danh mục",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/categories/1/with-products",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"categories",
+								"1",
+								"with-products"
+							]
+						},
+						"description": "Lấy thông tin danh mục kèm theo danh sách sản phẩm thuộc danh mục đó (dùng cho trang chi tiết danh mục)."
+					},
+					"response": []
+				},
+				{
+					"name": "Tạo danh mục mới (Admin)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "Name",
+									"value": "Bàn Trà Sofa",
+									"description": "Tên danh mục (Bắt buộc)",
+									"type": "text"
+								},
+								{
+									"key": "Description",
+									"value": "Các sản phẩm bàn trà phòng khách hiện đại.",
+									"description": "Mô tả danh mục",
+									"type": "text"
+								},
+								{
+									"key": "imageFile",
+									"description": "File ảnh đại diện danh mục (Chọn định dạng Image)",
+									"type": "file"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"categories"
+							]
+						},
+						"description": "Thêm danh mục mới (Yêu cầu đăng nhập Admin)."
+					},
+					"response": []
+				},
+				{
+					"name": "Cập nhật danh mục (Admin)",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "CategoryId",
+									"value": "1",
+									"description": "ID danh mục (Phải khớp với ID trên URL)",
+									"type": "text"
+								},
+								{
+									"key": "Name",
+									"value": "Bàn Trà Cao Cấp",
+									"description": "Tên danh mục",
+									"type": "text"
+								},
+								{
+									"key": "Description",
+									"value": "Mô tả mới sau khi cập nhật.",
+									"description": "Mô tả mới",
+									"type": "text"
+								},
+								{
+									"key": "imageFile",
+									"description": "Tải lên ảnh mới nếu muốn đổi ảnh cũ",
+									"type": "file"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/categories/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"categories",
+								"1"
+							]
+						},
+						"description": "Cập nhật thông tin danh mục (Yêu cầu đăng nhập Admin)."
+					},
+					"response": []
+				},
+				{
+					"name": "Xóa danh mục (Admin)",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/categories/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"categories",
+								"1"
+							]
+						},
+						"description": "Xóa danh mục và ảnh đại diện đi kèm (Yêu cầu đăng nhập Admin)."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Products (Sản phẩm)",
+			"item": [
+				{
+					"name": "Lấy toàn bộ sản phẩm",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/products",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"products"
+							]
+						},
+						"description": "Lấy tất cả sản phẩm. Hỗ trợ truyền Query Parameter `categoryId` để lọc."
+					},
+					"response": []
+				},
+				{
+					"name": "Lọc sản phẩm theo CategoryId",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/products?categoryId=1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"products"
+							],
+							"query": [
+								{
+									"key": "categoryId",
+									"value": "1",
+									"description": "ID của danh mục muốn lọc"
+								}
+							]
+						},
+						"description": "Lấy các sản phẩm thuộc một danh mục cụ thể."
+					},
+					"response": []
+				},
+				{
+					"name": "Lấy chi tiết sản phẩm theo ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/products/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"products",
+								"1"
+							]
+						},
+						"description": "Lấy thông tin chi tiết của sản phẩm kèm thông tin Category của sản phẩm."
+					},
+					"response": []
+				},
+				{
+					"name": "Tạo sản phẩm mới (Admin)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "Name",
+									"value": "Ghế Sofa Da Ý",
+									"description": "Tên sản phẩm (Bắt buộc)",
+									"type": "text"
+								},
+								{
+									"key": "CategoryId",
+									"value": "1",
+									"description": "Mã danh mục trực thuộc (Bắt buộc)",
+									"type": "text"
+								},
+								{
+									"key": "Price",
+									"value": "15000000",
+									"description": "Giá bán dạng số (Bắt buộc)",
+									"type": "text"
+								},
+								{
+									"key": "StockQuantity",
+									"value": "15",
+									"description": "Số lượng tồn kho (Bắt buộc)",
+									"type": "text"
+								},
+								{
+									"key": "Material",
+									"value": "Da bò tự nhiên",
+									"description": "Chất liệu sản phẩm (Bắt buộc)",
+									"type": "text"
+								},
+								{
+									"key": "Description",
+									"value": "Sofa nhập khẩu nguyên chiếc từ Ý cực sang trọng.",
+									"description": "Mô tả sản phẩm",
+									"type": "text"
+								},
+								{
+									"key": "imageFile",
+									"description": "File ảnh sản phẩm (Chọn định dạng File Image)",
+									"type": "file"
+								},
+								{
+									"key": "model3dFile",
+									"description": "Tệp mô hình 3D định dạng .glb (Chọn định dạng File)",
+									"type": "file"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/products",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"products"
+							]
+						},
+						"description": "Thêm sản phẩm mới với ảnh và mô hình 3D (Yêu cầu đăng nhập Admin)."
+					},
+					"response": []
+				},
+				{
+					"name": "Cập nhật sản phẩm (Admin)",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "ProductId",
+									"value": "1",
+									"description": "ID sản phẩm (Phải khớp với ID trên URL)",
+									"type": "text"
+								},
+								{
+									"key": "Name",
+									"value": "Sofa Da Ý Cải Tiến",
+									"description": "Tên sản phẩm",
+									"type": "text"
+								},
+								{
+									"key": "CategoryId",
+									"value": "1",
+									"description": "Mã danh mục",
+									"type": "text"
+								},
+								{
+									"key": "Price",
+									"value": "16500000",
+									"description": "Giá bán",
+									"type": "text"
+								},
+								{
+									"key": "StockQuantity",
+									"value": "10",
+									"description": "Số lượng kho",
+									"type": "text"
+								},
+								{
+									"key": "Material",
+									"value": "Da bò Ý 100%",
+									"type": "text"
+								},
+								{
+									"key": "Description",
+									"value": "Mô tả mới...",
+									"type": "text"
+								},
+								{
+									"key": "imageFile",
+									"description": "Tải lên ảnh mới nếu muốn thay thế ảnh cũ",
+									"type": "file"
+								},
+								{
+									"key": "model3dFile",
+									"description": "Tải lên tệp .glb mới nếu muốn thay thế tệp cũ",
+									"type": "file"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/products/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"products",
+								"1"
+							]
+						},
+						"description": "Cập nhật thông tin chi tiết sản phẩm (Yêu cầu đăng nhập Admin)."
+					},
+					"response": []
+				},
+				{
+					"name": "Xóa sản phẩm (Admin)",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/products/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"products",
+								"1"
+							]
+						},
+						"description": "Xóa sản phẩm, dọn dẹp các tệp ảnh và mô hình 3D đính kèm trong wwwroot (Yêu cầu đăng nhập Admin)."
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5188",
+			"type": "string"
+		}
+	]
+}
