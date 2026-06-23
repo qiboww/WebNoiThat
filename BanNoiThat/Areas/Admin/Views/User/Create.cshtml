@@ -1,0 +1,148 @@
+@{
+    ViewData["Title"] = "Thêm người dùng mới";
+}
+
+<div class="max-w-3xl mx-auto px-6 py-10">
+    <div class="mb-8">
+        <a asp-area="Admin" asp-controller="User" asp-action="Index" class="inline-flex items-center gap-1.5 text-on-surface-variant hover:text-primary transition-colors text-sm font-medium mb-4">
+            <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+            <span>Quay lại danh sách</span>
+        </a>
+        <h1 class="font-headline text-3xl font-semibold text-primary">Thêm người dùng mới</h1>
+        <p class="text-on-surface-variant mt-1 text-sm">Nhập thông tin chi tiết dưới đây để đăng ký tài khoản mới.</p>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-outline-variant/30 p-6 md:p-8">
+        <form id="create-user-form" class="space-y-6" novalidate>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Email -->
+                <div class="md:col-span-2">
+                    <label for="Email" class="block text-sm font-medium text-on-surface mb-2">Địa chỉ Email (Sẽ dùng làm tên đăng nhập) <span class="text-red-500">*</span></label>
+                    <input id="Email" name="Email" type="email" placeholder="example@webnoithat.com" class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm transition-all" required />
+                    <span id="error-Email" class="error-msg text-red-500 text-xs mt-1 block"></span>
+                </div>
+
+                <!-- Số điện thoại -->
+                <div>
+                    <label for="PhoneNumber" class="block text-sm font-medium text-on-surface mb-2">Số điện thoại</label>
+                    <input id="PhoneNumber" name="PhoneNumber" type="tel" placeholder="Ví dụ: 0987654321" class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm transition-all" />
+                    <span id="error-PhoneNumber" class="error-msg text-red-500 text-xs mt-1 block"></span>
+                </div>
+
+                <!-- Mật khẩu -->
+                <div>
+                    <label for="Password" class="block text-sm font-medium text-on-surface mb-2">Mật khẩu <span class="text-red-500">*</span></label>
+                    <input id="Password" name="Password" type="password" placeholder="Nhập ít nhất 6 ký tự" class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm transition-all" required />
+                    <span id="error-Password" class="error-msg text-red-500 text-xs mt-1 block"></span>
+                </div>
+
+                <!-- Phân vai trò -->
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-on-surface mb-3">Vai trò hệ thống</label>
+                    <div id="roles-checkboxes" class="flex flex-wrap gap-6 border border-outline-variant/30 p-4 rounded-lg bg-surface/50">
+                        <div class="text-xs text-on-surface-variant italic">Đang tải danh sách vai trò...</div>
+                    </div>
+                    <span id="error-Roles" class="error-msg text-red-500 text-xs mt-1 block"></span>
+                </div>
+            </div>
+
+            <!-- Nút hành động -->
+            <div class="flex items-center justify-end gap-4 pt-4 border-t border-outline-variant/30">
+                <a asp-area="Admin" asp-controller="User" asp-action="Index" class="px-5 py-2.5 rounded-full border border-outline-variant hover:bg-surface-variant/25 font-medium text-sm text-on-surface transition-all">
+                    Hủy bỏ
+                </a>
+                <button type="submit" class="px-6 py-2.5 rounded-full bg-primary hover:bg-primary-container text-white font-medium text-sm shadow-sm hover:shadow transition-all">
+                    Lưu tài khoản
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            loadRoles();
+
+            const form = document.getElementById("create-user-form");
+            form.addEventListener("submit", handleSubmit);
+        });
+
+        async function loadRoles() {
+            const container = document.getElementById("roles-checkboxes");
+            try {
+                const response = await fetch("/api/roles");
+                if (!response.ok) throw new Error("Không thể tải vai trò.");
+                const roles = await response.json();
+                
+                let html = "";
+                roles.forEach(role => {
+                    html += `
+                        <label class="inline-flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" name="Roles" value="${role}" class="rounded border-outline-variant text-primary focus:ring-primary w-4 h-4" />
+                            <span class="text-sm font-medium text-on-surface-variant">${role}</span>
+                        </label>
+                    `;
+                });
+                container.innerHTML = html;
+            } catch (error) {
+                console.error("Lỗi khi tải vai trò:", error);
+                container.innerHTML = `<span class="text-red-500 text-xs font-semibold">Lỗi: không thể tải các vai trò.</span>`;
+            }
+        }
+
+        async function handleSubmit(e) {
+            e.preventDefault();
+            
+            // Xóa thông báo lỗi cũ
+            document.querySelectorAll(".error-msg").forEach(el => el.textContent = "");
+            
+            const form = e.target;
+            const formData = new FormData(form);
+            
+            // Validate client-side đơn giản
+            let hasError = false;
+            const email = formData.get("Email");
+            const password = formData.get("Password");
+            
+            if (!email) {
+                document.getElementById("error-Email").textContent = "Vui lòng nhập Email.";
+                hasError = true;
+            }
+            if (!password || password.length < 6) {
+                document.getElementById("error-Password").textContent = "Mật khẩu phải dài ít nhất 6 ký tự.";
+                hasError = true;
+            }
+            
+            if (hasError) return;
+
+            try {
+                const response = await fetch("/api/users", {
+                    method: "POST",
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    alert("Tạo tài khoản người dùng thành công!");
+                    window.location.href = "/Admin/User";
+                } else {
+                    alert(result.message || "Tạo tài khoản thất bại. Vui lòng kiểm tra lại thông tin.");
+                    if (result.errors) {
+                        // Hiển thị lỗi trường cụ thể từ MVC ModelState nếu có
+                        Object.keys(result.errors).forEach(key => {
+                            const errorEl = document.getElementById(`error-${key}`);
+                            if (errorEl) {
+                                errorEl.textContent = result.errors[key].join(" ");
+                            }
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error("Lỗi khi gửi form:", error);
+                alert("Đã xảy ra lỗi hệ thống khi kết nối.");
+            }
+        }
+    </script>
+}
