@@ -89,7 +89,7 @@ namespace BanNoiThat.Controllers
                 var order = new Order
                 {
                     UserId = userId,
-                    OrderDate = DateTime.Now,
+                    OrderDate = DateTime.UtcNow.AddHours(7),
                     ShippingAddress = request.ShippingAddress,
                     PhoneNumber = request.PhoneNumber,
                     Status = "Pending",
