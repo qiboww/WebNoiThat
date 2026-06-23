@@ -13,6 +13,11 @@
                 <span class="hidden md:inline">Quản trị</span>
             </a>
         }
+        <!-- Lịch sử mua hàng -->
+        <a class="hover:text-primary text-sm font-medium flex items-center gap-1.5 transition-colors" asp-area="" asp-controller="Home" asp-action="OrderHistory" title="Lịch sử mua hàng">
+            <span class="material-symbols-outlined text-[22px]">receipt_long</span>
+            <span class="hidden md:inline text-on-surface-variant hover:text-primary">Đơn hàng</span>
+        </a>
         <a class="hover:text-primary text-sm font-medium flex items-center gap-1.5 transition-colors" asp-area="Identity" asp-page="/Account/Manage/Index" title="Quản lý tài khoản">
             <span class="material-symbols-outlined text-[22px]">account_circle</span>
             <span class="hidden lg:inline text-on-surface-variant hover:text-primary">@User.Identity?.Name</span>

@@ -60,9 +60,9 @@ namespace BanNoiThat.Areas.Admin.Controllers
         // GET: /api/products (Public for customer grid)
         [AllowAnonymous]
         [HttpGet("/api/products")]
-        public async Task<IActionResult> GetProductsApi([FromQuery] int? categoryId)
+        public async Task<IActionResult> GetProductsApi([FromQuery] int? categoryId, [FromQuery] string? search)
         {
-            var products = await _productRepo.GetProductsByCategoryAsync(categoryId);
+            var products = await _productRepo.GetProductsByCategoryAsync(categoryId, search);
             return Ok(products);
         }
 

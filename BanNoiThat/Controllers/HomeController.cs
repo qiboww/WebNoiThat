@@ -39,6 +39,12 @@ namespace BanNoiThat.Controllers
             return View();
         }
 
+        [Microsoft.AspNetCore.Authorization.Authorize]
+        public IActionResult OrderHistory()
+        {
+            return View();
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

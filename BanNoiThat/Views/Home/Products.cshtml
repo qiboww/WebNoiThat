@@ -29,6 +29,16 @@
 
         <!-- Lưới danh sách sản phẩm (bên phải) -->
         <main class="flex-grow">
+            <!-- Thanh tìm kiếm sản phẩm -->
+            <div class="mb-8 relative max-w-md">
+                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50">search</span>
+                <input type="text" id="search-input" placeholder="Tìm tên hoặc mô tả sản phẩm..." 
+                       class="w-full pl-12 pr-10 py-3 bg-white border border-outline-variant/30 rounded-xl focus:outline-none focus:border-primary/50 text-sm shadow-sm transition-all placeholder:text-on-surface-variant/40" />
+                <button id="search-clear-btn" type="button" class="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50 hover:text-primary transition-colors hidden cursor-pointer">
+                    <span class="material-symbols-outlined text-[20px]">close</span>
+                </button>
+            </div>
+
             <div id="products-loading" class="text-center py-20 bg-white rounded-xl border border-outline-variant/30 text-on-surface-variant/60">
                 <div class="inline-block w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mb-3"></div>
                 <p class="text-sm">Đang tải sản phẩm...</p>
@@ -51,6 +61,8 @@
     <script>
         // Set initial selected category from server ViewBag or parse URL query
         let currentCategoryId = @(selectedCategoryId != null ? selectedCategoryId.ToString() : "null");
+        let currentSearchTerm = "";
+        let searchTimeout = null;
 
         document.addEventListener("DOMContentLoaded", async function () {
             // Read query param on load if viewbag is null
@@ -60,6 +72,34 @@
                 if (catIdParam) {
                     currentCategoryId = parseInt(catIdParam);
                 }
+            }
+
+            // Bind search input events
+            const searchInput = document.getElementById("search-input");
+            const searchClearBtn = document.getElementById("search-clear-btn");
+
+            if (searchInput && searchClearBtn) {
+                searchInput.addEventListener("input", function (e) {
+                    currentSearchTerm = e.target.value.trim();
+                    
+                    if (currentSearchTerm.length > 0) {
+                        searchClearBtn.classList.remove("hidden");
+                    } else {
+                        searchClearBtn.classList.add("hidden");
+                    }
+
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(async () => {
+                        await loadProducts(currentCategoryId);
+                    }, 300);
+                });
+
+                searchClearBtn.addEventListener("click", async function () {
+                    searchInput.value = "";
+                    currentSearchTerm = "";
+                    searchClearBtn.classList.add("hidden");
+                    await loadProducts(currentCategoryId);
+                });
             }
 
             await loadSidebarCategories();
@@ -157,8 +197,16 @@
 
             try {
                 let url = "/api/products";
+                const params = new URLSearchParams();
                 if (categoryId !== null) {
-                    url += `?categoryId=${categoryId}`;
+                    params.append("categoryId", categoryId);
+                }
+                if (currentSearchTerm !== "") {
+                    params.append("search", currentSearchTerm);
+                }
+                const queryString = params.toString();
+                if (queryString) {
+                    url += `?${queryString}`;
                 }
 
                 const response = await fetch(url);
@@ -183,6 +231,14 @@
                 loadingContainer.classList.add("hidden");
 
                 if (products.length === 0) {
+                    const emptyTextEl = emptyContainer.querySelector("p");
+                    if (emptyTextEl) {
+                        if (currentSearchTerm !== "") {
+                            emptyTextEl.innerHTML = `Không tìm thấy sản phẩm nào phù hợp với từ khóa "<strong>${currentSearchTerm}</strong>".`;
+                        } else {
+                            emptyTextEl.textContent = "Không tìm thấy sản phẩm nào trong danh mục này.";
+                        }
+                    }
                     emptyContainer.classList.remove("hidden");
                     return;
                 }

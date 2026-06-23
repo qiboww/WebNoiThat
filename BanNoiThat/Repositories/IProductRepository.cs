@@ -5,7 +5,7 @@ namespace BanNoiThat.Repositories
     public interface IProductRepository
     {
         Task<IEnumerable<Product>> GetAllProductsAsync();
-        Task<IEnumerable<Product>> GetProductsByCategoryAsync(int? categoryId);
+        Task<IEnumerable<Product>> GetProductsByCategoryAsync(int? categoryId, string? searchTerm = null);
         Task<Product?> GetProductByIdAsync(int id);
         Task<Product?> GetProductWithCategoryAsync(int id);
         Task AddProductAsync(Product product);

@@ -110,5 +110,50 @@ namespace BanNoiThat.Controllers
                 return StatusCode(500, new { message = "Đã xảy ra lỗi trong quá trình xử lý đơn hàng.", error = ex.Message });
             }
         }
+
+        [HttpGet("my-orders")]
+        public async Task<IActionResult> GetMyOrders()
+        {
+            var userId = _userManager.GetUserId(User);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized(new { message = "Bạn cần đăng nhập để xem lịch sử mua hàng." });
+            }
+
+            try
+            {
+                var orders = await _context.Orders
+                    .Where(o => o.UserId == userId)
+                    .Include(o => o.OrderDetails)
+                        .ThenInclude(d => d.Product)
+                    .OrderByDescending(o => o.OrderDate)
+                    .Select(o => new
+                    {
+                        orderId = o.OrderId,
+                        orderDate = o.OrderDate,
+                        totalAmount = o.TotalAmount,
+                        shippingAddress = o.ShippingAddress,
+                        phoneNumber = o.PhoneNumber,
+                        status = o.Status,
+                        orderDetails = o.OrderDetails.Select(d => new
+                        {
+                            orderDetailId = d.OrderDetailId,
+                            productId = d.ProductId,
+                            productName = d.Product != null ? d.Product.Name : "Sản phẩm đã bị xóa",
+                            productImageUrl = d.Product != null ? d.Product.ImageUrl : "",
+                            quantity = d.Quantity,
+                            unitPrice = d.UnitPrice,
+                            subtotal = d.Quantity * d.UnitPrice
+                        })
+                    })
+                    .ToListAsync();
+
+                return Ok(orders);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Lỗi khi lấy lịch sử đơn hàng.", error = ex.Message });
+            }
+        }
     }
 }

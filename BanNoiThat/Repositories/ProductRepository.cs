@@ -18,12 +18,16 @@ namespace BanNoiThat.Repositories
             return await _context.Products.Include(p => p.Category).AsNoTracking().ToListAsync();
         }
 
-        public async Task<IEnumerable<Product>> GetProductsByCategoryAsync(int? categoryId)
+        public async Task<IEnumerable<Product>> GetProductsByCategoryAsync(int? categoryId, string? searchTerm = null)
         {
             IQueryable<Product> query = _context.Products.Include(p => p.Category).AsNoTracking();
             if (categoryId.HasValue)
             {
                 query = query.Where(p => p.CategoryId == categoryId.Value);
+            }
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                query = query.Where(p => p.Name.Contains(searchTerm) || (p.Description != null && p.Description.Contains(searchTerm)));
             }
             return await query.ToListAsync();
         }

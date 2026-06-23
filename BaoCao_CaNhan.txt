@@ -1,0 +1,202 @@
+================================================================================
+BÁO CÁO CÁ NHÂN - TỔNG HỢP CÁC CHỨC NĂNG ĐÃ THỰC HIỆN TRONG DỰ ÁN DECORHOME
+================================================================================
+(Báo cáo này tổng hợp đầy đủ tất cả các chức năng do chính bạn tự lập trình và tích hợp,
+hoàn toàn loại trừ phần giao diện giỏ hàng của bạn Quốc Tuấn và quản lý người dùng
+của bạn Gia Bảo).
+
+--------------------------------------------------------------------------------
+DANH SÁCH CÁC CHỨC NĂNG ĐÃ THỰC HIỆN VÀ LUỒNG XỬ LÝ CHI TIẾT
+--------------------------------------------------------------------------------
+
+CHỨC NĂNG 1: HIỂN THỊ MÔ HÌNH 3D TƯƠNG TÁC & THỰC TẾ ẢO (3D MODEL & AR VIEWER)
+--------------------------------------------------------------------------------
+* Mục tiêu: Cung cấp trải nghiệm xem sản phẩm nội thất trực quan dưới dạng 3D xoay 
+  360 độ và xem thực tế ảo (AR) trên điện thoại di động thay vì chỉ có ảnh 2D tĩnh.
+
+* Luồng xử lý chi tiết:
+  Bước 1: Khách hàng nhấn vào một sản phẩm trên trang danh sách sản phẩm.
+  Bước 2: Trang chi tiết sản phẩm (Views/Home/ProductDetails.cshtml) gửi yêu cầu 
+          Fetch API (HTTP GET) lên địa chỉ "/api/products/{id}".
+  Bước 3: API trong ProductApiController.cs trả về thông tin sản phẩm có chứa đường 
+          dẫn mô hình 3D (Model3DUrl - dẫn tới file định dạng .glb lưu trên server).
+  Bước 4: JavaScript kiểm tra:
+          - Nếu sản phẩm KHÔNG có Model 3D: Chỉ hiển thị ảnh 2D, ẩn nút chuyển đổi.
+          - Nếu sản phẩm CÓ Model 3D: Hiển thị thanh chuyển đổi "Ảnh 2D / Mô hình 3D".
+  Bước 5: Khi khách hàng nhấp chọn chế độ "Mô hình 3D":
+          - Hệ thống kiểm tra và tải động (Lazy load) thư viện biên dịch mô hình 
+            "<model-viewer>" từ Google CDN vào trang.
+          - Tạo thẻ HTML động `<model-viewer>` chứa đường dẫn tệp tin model3DUrl, 
+            cấu hình camera-controls, auto-rotate (tự động xoay) và ar (kích hoạt 
+            chế độ thực tế ảo).
+  Bước 6: Khách hàng có thể dùng chuột/tay để xoay, phóng to, thu nhỏ hoặc nhấn nút 
+          AR trên điện thoại để chiếu thử mô hình chiếc ghế/sofa vào phòng thực tế.
+
+
+CHỨC NĂNG 2: PHÂN HỆ QUẢN LÝ SẢN PHẨM & UPLOAD MÔ HÌNH 3D (ADMIN PRODUCT CRUD)
+--------------------------------------------------------------------------------
+* Mục tiêu: Cho phép quản trị viên (Admin) quản lý thông tin sản phẩm và tải lên 
+  ảnh sản phẩm kèm tệp mô hình 3D (.glb) trực tiếp lên máy chủ lưu trữ.
+
+* Luồng xử lý chi tiết:
+  Bước 1: Admin đăng nhập và truy cập phân hệ quản lý sản phẩm (/Admin/Product).
+  Bước 2: Giao diện gửi yêu cầu lấy danh sách lên "/api/products", render bảng sản 
+          phẩm.
+  Bước 3: Khi Admin nhấn thêm mới/cập nhật sản phẩm, điền thông tin và chọn tệp tin 
+          ảnh (.png/.jpg) và tệp mô hình 3D (.glb).
+  Bước 4: Form gửi yêu cầu dưới dạng FormData (Multipart/Form-Data) lên API của 
+          ProductApiController.cs.
+  Bước 5: Controller tiếp nhận yêu cầu:
+          - Lưu file ảnh vào thư mục: "wwwroot/images/product/"
+          - Lưu file mô hình 3D (.glb) vào thư mục: "wwwroot/models/product/"
+          - Tạo tên file duy nhất bằng Guid để tránh ghi đè tệp trùng tên.
+          - Ghi đường dẫn file (/images/... và /models/...) vào database.
+  Bước 6: Gọi ProductRepository lưu thông tin vào SQL Server và trả về kết quả OK.
+
+
+CHỨC NĂNG 3: PHÂN HỆ QUẢN LÝ DANH MỤC SẢN PHẨM (ADMIN CATEGORY CRUD)
+--------------------------------------------------------------------------------
+* Mục tiêu: Cho phép Admin quản lý các danh mục phân loại đồ nội thất (Sofa, Bàn trà, 
+  Ghế bành...) phục vụ cho việc tổ chức sản phẩm và bộ lọc tìm kiếm của khách hàng.
+
+* Luồng xử lý chi tiết:
+  Bước 1: Admin truy cập trang quản lý danh mục sản phẩm (/Admin/Category).
+  Bước 2: Giao diện gửi yêu cầu lấy danh sách lên "/api/categories", hiển thị dạng 
+          bảng.
+  Bước 3: Admin thực hiện thêm, sửa, hoặc xóa danh mục.
+  Bước 4: Yêu cầu được gửi lên CategoryApiController.cs:
+          - Dùng phương thức POST để tạo danh mục mới.
+          - Dùng phương thức PUT để chỉnh sửa tên, mô tả, ảnh của danh mục.
+          - Dùng phương thức DELETE để xóa danh mục.
+  Bước 5: API gọi CategoryRepository để tương tác trực tiếp với EF Core, thực hiện 
+          thay đổi dữ liệu trong SQL Server và phản hồi trạng thái thành công.
+
+
+CHỨC NĂNG 4: LỊCH SỬ MUA HÀNG CỦA KHÁCH HÀNG (CUSTOMER ORDER HISTORY)
+--------------------------------------------------------------------------------
+* Mục tiêu: Cho phép khách hàng đã đăng nhập có thể xem lại toàn bộ các đơn hàng 
+  họ đã đặt mua, bao gồm thông tin chi tiết từng sản phẩm, ngày đặt, địa chỉ giao 
+  hàng, số tiền thanh toán và trạng thái xử lý hiện tại của đơn hàng.
+
+* Luồng xử lý chi tiết:
+  Bước 1: Khách hàng đăng nhập vào hệ thống.
+  Bước 2: Hệ thống kiểm tra quyền đăng nhập thành công, hiển thị liên kết "Đơn hàng" 
+          (biểu tượng receipt_long) trên thanh điều hướng chính (trong file 
+          _LoginPartial.cshtml).
+  Bước 3: Khách hàng nhấp vào "Đơn hàng", trình duyệt gửi yêu cầu chuyển hướng đến 
+          Action OrderHistory trong HomeController.cs.
+  Bước 4: HomeController.cs thực hiện kiểm tra bảo mật [Authorize]. Nếu hợp lệ, 
+          trả về View giao diện OrderHistory.cshtml cho trình duyệt của khách hàng.
+  Bước 5: Khi giao diện tải xong (sự kiện DOMContentLoaded), mã JavaScript gửi yêu 
+          cầu Fetch API (HTTP GET) lên địa chỉ "/api/orders/my-orders".
+  Bước 6: API GetMyOrders trong OrderApiController.cs tiếp nhận yêu cầu:
+          - Lấy ID người dùng hiện tại thông qua UserManager.
+          - Truy vấn cơ sở dữ liệu SQL Server bằng EF Core để lọc các đơn hàng của 
+            UserID này.
+          - Liên kết (Include) bảng OrderDetails và Product để lấy thông tin sản phẩm.
+          - Sắp xếp theo ngày đặt giảm dần (mới nhất lên trên).
+          - Trả về dữ liệu dạng JSON.
+  Bước 7: Trình duyệt nhận được dữ liệu JSON, tiến hành duyệt qua danh sách đơn hàng 
+          và vẽ (render) động ra HTML. Nếu chưa có đơn hàng, hiển thị giao diện trống
+          thân thiện kèm nút hướng dẫn mua sắm.
+
+
+CHỨC NĂNG 5: KIỂM TRA TỒN KHO THỜI GIAN THỰC TẠI GIỎ HÀNG (REAL-TIME STOCK VALIDATION)
+--------------------------------------------------------------------------------
+* Mục tiêu: Ngăn chặn lỗi trải nghiệm người dùng khi tăng số lượng sản phẩm mua 
+  vượt quá số lượng hàng thực tế còn lại trong kho của cơ sở dữ liệu.
+
+* Luồng xử lý chi tiết:
+  Bước 1: Khách hàng truy cập trang giỏ hàng (Cart/Index.cshtml).
+  Bước 2: Khi khách hàng nhấn vào nút tăng số lượng (+), JavaScript sẽ can thiệp và
+          gọi Fetch API (HTTP GET) lên địa chỉ "/api/products/{productId}".
+  Bước 3: Server (ProductApiController.cs) truy vấn database và trả về thông tin chi 
+          tiết sản phẩm bao gồm số lượng tồn kho (stockQuantity).
+  Bước 4: Client so sánh: Số lượng mới = Số lượng hiện tại + 1.
+          - Nếu Số lượng mới > Tồn kho: JavaScript sẽ tự động ghim số lượng mua về 
+            mức tồn kho tối đa, hiển thị hộp thoại cảnh báo (alert) cho người dùng 
+            biết số lượng tối đa có thể mua.
+          - Nếu Số lượng mới <= Tồn kho: Cho phép tăng số lượng bình thường.
+  Bước 5: Khi khách hàng nhấn đặt hàng, một lớp bảo mật lần hai ở Backend 
+          (OrderApiController.cs) sẽ kiểm tra lại số lượng tồn kho một lần nữa 
+          trước khi ghi nhận đơn hàng để đảm bảo an toàn dữ liệu tuyệt đối.
+
+
+CHỨC NĂNG 6: TỰ ĐỘNG PHÂN QUYỀN MẶC ĐỊNH (AUTOMATIC USER ROLE ASSIGNMENT)
+--------------------------------------------------------------------------------
+* Mục tiêu: Đảm bảo tất cả người dùng đăng ký mới trên website đều tự động được 
+  gán vai trò (Role) là "User" để phục vụ cho việc kiểm soát quyền truy cập hệ thống.
+
+* Luồng xử lý chi tiết:
+  Bước 1: Khi ứng dụng ASP.NET Core được khởi chạy, lớp DbInitializer.cs tự động
+          kiểm tra xem vai trò "User" đã tồn tại trong database chưa (bảng AspNetRoles).
+          Nếu chưa, nó sẽ tự động chạy lệnh tạo mới vai trò "User".
+  Bước 2: Khách hàng điền thông tin và nhấn "Đăng ký" tại trang Register.cshtml.
+  Bước 3: File Register.cshtml.cs tiếp nhận thông tin và gọi hàm CreateAsync của 
+          UserManager để tạo tài khoản trong cơ sở dữ liệu.
+  Bước 4: Ngay khi tài khoản được tạo thành công, hệ thống chạy tiếp lệnh:
+          _userManager.AddToRoleAsync(user, "User");
+          Lệnh này liên kết tài khoản vừa tạo với vai trò "User" trong bảng 
+          AspNetUserRoles.
+  Bước 5: Đăng nhập người dùng vào hệ thống với vai trò "User" vừa được thiết lập.
+
+
+CHỨC NĂNG 7: ĐỒNG BỘ VÀ TỐI ƯU HÓA GIAO DIỆN QUẢN TRỊ (ADMIN UI/UX INTEGRATION)
+--------------------------------------------------------------------------------
+* Mục tiêu: Khắc phục lỗi vỡ khung hình, thu nhỏ layout, tràn dòng chữ và xuất hiện 
+  thanh kéo ngang trên các trang chi tiết quản trị. Đồng bộ hiển thị trạng thái đơn hàng.
+
+* Luồng xử lý chi tiết:
+  Bước 1: Đồng bộ trạng thái đơn hàng dạng dấu chấm tròn (Index & Details):
+          - Viết lại hàm hiển thị badge trạng thái trong Order/Index.cshtml và 
+            Order/Details.cshtml để trả về cấu trúc HTML chứa chấm tròn màu động 
+            (Ví dụ: dot màu xanh cho trạng thái Hoàn thành, dot đỏ cho Đã hủy, dot 
+            vàng cho Chờ xử lý...) đồng bộ với giao diện Quản lý người dùng.
+  Bước 2: Sửa lỗi co cụm layout và mất thanh điều hướng:
+          - Phát hiện các trang chi tiết bị thu nhỏ về mức max-w-5xl, tiến hành thay 
+            đổi độ rộng khung hiển thị lên chuẩn max-w-7xl trên trang chi tiết đơn hàng
+            và chi tiết danh mục sản phẩm.
+  Bước 3: Khắc phục thanh kéo ngang (Scrollbar):
+          - Sửa đổi các ô tiêu đề cột (th) và ô dữ liệu (td) của bảng sản phẩm đã đặt 
+            sang sử dụng khoảng đệm chuẩn py-4 px-6, thêm thuộc tính whitespace-nowrap 
+            để chặn gãy dòng chữ và min-w-[200px] để bảng hiển thị rộng rãi, tự động 
+            co giãn khít màn hình mà không cần kéo ngang.
+  Bước 4: Tạo class CSS dự phòng trong site.css:
+          - Khai báo thủ công các lớp định dạng grid (lg:col-span-2, lg:grid-cols-3) và 
+            width (lg:w-2/3, lg:w-1/3) bị thiếu ở file tailwind.css thô để trình duyệt 
+            thực thi chuẩn xác giao diện 2 cột mà không cần build Tailwind.
+
+
+CHỨC NĂNG 8: TÍCH HỢP HỆ THỐNG VÀ XỬ LÝ XUNG ĐỘT GIT (MERGE & CONFLICT RESOLUTION)
+--------------------------------------------------------------------------------
+* Mục tiêu: Kết nối các nhánh tính năng của các thành viên khác lại với nhau, đảm 
+  bảo dự án hoạt động đồng bộ và không làm mất cấu hình cá nhân.
+
+* Luồng xử lý chi tiết:
+  Bước 1: Chạy lệnh gộp nhánh có cờ chặn git merge --no-commit để kiểm soát dữ liệu.
+  Bước 2: Xử lý xung đột file cấu hình appsettings.json cục bộ để bảo vệ kết nối 
+          SQL Server riêng của máy mình (localhost\MSSQLSERVER01) mà không đẩy lên 
+          làm ảnh hưởng các thành viên khác.
+  Bước 3: Vô hiệu hóa target build Tailwind bị lỗi 9009 trong file BanNoiThat.csproj 
+          để dự án build thành công không phụ thuộc file chạy .exe bị thiếu.
+
+
+CHỨC NĂNG 9: TÌM KIẾM SẢN PHẨM THỜI GIAN THỰC (REAL-TIME PRODUCT SEARCH)
+--------------------------------------------------------------------------------
+* Mục tiêu: Cho phép khách hàng tìm kiếm nhanh sản phẩm theo tên hoặc mô tả trực 
+  tiếp trên trang danh sách sản phẩm với trải nghiệm gõ chữ tự động lọc (Debounce).
+
+* Luồng xử lý chi tiết:
+  Bước 1: Khách hàng nhập từ khóa tìm kiếm vào ô input trên trang Products.cshtml.
+  Bước 2: Mã JavaScript sử dụng cơ chế trì hoãn (Debounce 300ms) để đợi người dùng 
+          ngừng gõ chữ mới gửi yêu cầu, giúp giảm số lượng request tải server.
+  Bước 3: Trình duyệt gửi yêu cầu Fetch API (HTTP GET) kèm theo tham số tìm kiếm 
+          đến đường dẫn `/api/products?categoryId=...&search={tu_khoa}`.
+  Bước 4: API trong ProductApiController.cs tiếp nhận request, lấy tham số `search`
+          và truyền xuống lớp dữ liệu ProductRepository.cs.
+  Bước 5: Lớp ProductRepository sử dụng EF Core để truy vấn cơ sở dữ liệu SQL Server, 
+          lọc sản phẩm có tên hoặc mô tả chứa từ khóa tìm kiếm tương ứng.
+  Bước 6: Trình duyệt nhận danh sách kết quả JSON trả về và vẽ động ra lưới sản phẩm.
+          - Nếu không tìm thấy sản phẩm nào phù hợp, hiển thị thông báo "Không tìm 
+            thấy sản phẩm nào phù hợp với từ khóa '{từ khóa}'" kèm icon trực quan.
+================================================================================
