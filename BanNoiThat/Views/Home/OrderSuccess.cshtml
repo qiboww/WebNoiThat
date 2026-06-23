@@ -1,0 +1,48 @@
+@{
+    ViewData["Title"] = "Đặt hàng thành công";
+    var orderId = ViewBag.OrderId;
+}
+
+<div class="max-w-3xl mx-auto px-6 py-20 text-center">
+    <div class="bg-white rounded-2xl border border-outline-variant/20 shadow-sm p-10 md:p-16 space-y-8 max-w-2xl mx-auto">
+        <!-- Biểu tượng thành công với hiệu ứng động nhẹ -->
+        <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-50 border border-green-200 text-green-600 mb-2">
+            <span class="material-symbols-outlined text-[48px] animate-pulse">check_circle</span>
+        </div>
+
+        <div class="space-y-3">
+            <h1 class="font-headline text-3xl font-semibold text-primary">Đặt hàng thành công!</h1>
+            <p class="text-on-surface-variant text-sm">Cảm ơn bạn đã lựa chọn mua sắm sản phẩm nội thất tại DecorHome.</p>
+        </div>
+
+        <!-- Chi tiết đơn hàng -->
+        <div class="bg-surface-variant/10 rounded-xl p-5 border border-outline-variant/20 space-y-2.5 max-w-sm mx-auto text-sm">
+            <div class="flex justify-between">
+                <span class="text-on-surface-variant">Mã đơn hàng:</span>
+                <span class="font-bold text-primary">#@orderId</span>
+            </div>
+            <div class="flex justify-between">
+                <span class="text-on-surface-variant">Trạng thái:</span>
+                <span class="font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded text-xs border border-green-150">Đang chờ xử lý</span>
+            </div>
+        </div>
+
+        <!-- Hướng dẫn tiếp theo -->
+        <div class="text-xs text-on-surface-variant leading-relaxed max-w-md mx-auto space-y-2">
+            <p>Bộ phận chăm sóc khách hàng của DecorHome sẽ liên hệ với bạn qua số điện thoại cung cấp trong vòng 15-30 phút để xác nhận đơn hàng và thời gian giao nhận.</p>
+            <p class="font-light text-[11px] text-on-surface-variant/70">Mọi thắc mắc vui lòng liên hệ hotline: <strong>1900 1234</strong> (miễn phí).</p>
+        </div>
+
+        <!-- Các nút thao tác -->
+        <div class="flex flex-col sm:flex-row justify-center gap-4 pt-4">
+            <a href="/Home/Products" class="bg-primary hover:bg-primary-container text-white px-8 py-3 rounded-full font-semibold shadow hover:shadow-md transition-all text-sm flex items-center justify-center gap-1.5 cursor-pointer">
+                <span class="material-symbols-outlined text-[18px]">shopping_cart</span>
+                <span>Tiếp tục mua sắm</span>
+            </a>
+            <a href="/" class="border border-outline-variant/50 hover:bg-surface-variant/10 text-on-surface hover:text-primary px-8 py-3 rounded-full font-semibold transition-all text-sm flex items-center justify-center gap-1.5 cursor-pointer">
+                <span class="material-symbols-outlined text-[18px]">home</span>
+                <span>Quay về trang chủ</span>
+            </a>
+        </div>
+    </div>
+</div>

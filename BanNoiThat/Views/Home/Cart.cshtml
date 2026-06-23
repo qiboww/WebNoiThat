@@ -1,0 +1,348 @@
+@using Microsoft.AspNetCore.Identity
+@using BanNoiThat.Data
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@{
+    ViewData["Title"] = "Giỏ hàng của bạn";
+    var currentUser = SignInManager.IsSignedIn(User) ? await UserManager.GetUserAsync(User) : null;
+    var defaultPhone = currentUser?.PhoneNumber ?? "";
+}
+
+<div class="max-w-7xl mx-auto px-6 py-12">
+    <!-- Header của trang -->
+    <div class="mb-10 flex items-center justify-between border-b border-outline-variant/30 pb-6">
+        <div>
+            <h1 class="font-headline text-3xl md:text-4xl font-semibold text-primary">Giỏ hàng</h1>
+            <p class="text-on-surface-variant text-sm mt-1">Quản lý các sản phẩm nội thất đã chọn và tiến hành đặt hàng.</p>
+        </div>
+        <a href="/Home/Products" class="inline-flex items-center gap-1.5 text-primary hover:text-primary-container text-sm font-semibold transition-all">
+            <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+            <span>Tiếp tục mua sắm</span>
+        </a>
+    </div>
+
+@if (SignInManager.IsSignedIn(User)) {
+    <div id="cart-container" class="flex flex-col lg:flex-row gap-10">
+        
+
+
+        <!-- Danh sách sản phẩm (Bên trái) -->
+        <div class="flex-grow lg:w-2/3 space-y-6">
+            <div class="bg-white rounded-2xl border border-outline-variant/20 shadow-sm overflow-hidden">
+                <div class="p-6 border-b border-outline-variant/10 font-semibold text-on-surface">
+                    Sản phẩm trong giỏ
+                </div>
+                <div id="cart-items-list" class="divide-y divide-outline-variant/15">
+                    <!-- Populated dynamically via JS -->
+                    <div class="p-12 text-center text-on-surface-variant/50">
+                        <div class="inline-block w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tóm tắt đơn hàng & Thông tin thanh toán (Bên phải) -->
+        <div class="w-full lg:w-1/3 flex-shrink-0 space-y-6">
+            <!-- Tóm tắt số tiền -->
+            <div class="bg-white rounded-2xl border border-outline-variant/20 shadow-sm p-6 space-y-4">
+                <h3 class="font-headline text-lg font-semibold text-primary pb-3 border-b border-outline-variant/20">
+                    Tóm tắt đơn hàng
+                </h3>
+                <div class="space-y-3 text-sm">
+                    <div class="flex justify-between text-on-surface-variant">
+                        <span>Tạm tính</span>
+                        <span id="summary-subtotal" class="font-medium">0₫</span>
+                    </div>
+                    <div class="flex justify-between text-on-surface-variant">
+                        <span>Phí vận chuyển</span>
+                        <span id="summary-shipping" class="font-medium">0₫</span>
+                    </div>
+                    <p id="shipping-note" class="text-xs text-primary font-light"></p>
+                    <div class="border-t border-outline-variant/10 pt-4 flex justify-between text-base font-semibold text-on-surface">
+                        <span>Tổng tiền</span>
+                        <span id="summary-total" class="text-primary text-lg">0₫</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Đặt hàng hoặc Yêu cầu Đăng nhập -->
+            <div class="bg-white rounded-2xl border border-outline-variant/20 shadow-sm p-6">
+                <h3 class="font-headline text-lg font-semibold text-primary pb-3 border-b border-outline-variant/20 mb-4">
+                    Thông tin giao hàng
+                </h3>
+                <form id="checkout-form" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-2">Số điện thoại nhận hàng</label>
+                        <input type="text" id="shipping-phone" value="@defaultPhone" required class="w-full px-4 py-3 rounded-xl border border-outline-variant/50 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-sm" placeholder="Nhập số điện thoại nhận hàng..." />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-2">Địa chỉ giao hàng chi tiết</label>
+                        <textarea id="shipping-address" rows="3" required class="w-full px-4 py-3 rounded-xl border border-outline-variant/50 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-sm resize-none" placeholder="Số nhà, tên đường, phường/xã, quận/huyện, tỉnh/thành phố..."></textarea>
+                    </div>
+                    <div id="checkout-error" class="hidden text-xs text-red-500 bg-red-50 p-3 rounded-lg border border-red-200"></div>
+                    <button type="submit" id="btn-submit-order" class="w-full bg-primary hover:bg-primary-container text-white py-3.5 px-6 rounded-full font-semibold shadow hover:shadow-md transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer mt-6">
+                        <span class="material-symbols-outlined">shopping_bag</span>
+                        <span>Xác nhận đặt hàng</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+else {
+    <!-- No cart displayed for unauthenticated users -->
+    <!-- Giỏ hàng trống -->
+    <div id="cart-empty" class="hidden text-center py-20 bg-white rounded-2xl border border-outline-variant/20 shadow-sm max-w-xl mx-auto">
+        <span class="material-symbols-outlined text-7xl text-on-surface-variant/30 block mb-4">shopping_cart</span>
+        <h2 class="text-2xl font-semibold text-on-surface mb-2">Giỏ hàng của bạn đang trống</h2>
+        <p class="text-on-surface-variant text-sm max-w-sm mx-auto mb-8">Bạn chưa thêm sản phẩm nội thất nào vào giỏ hàng của mình.</p>
+        <a href="/Home/Products" class="bg-primary hover:bg-primary-container text-white px-8 py-3 rounded-full font-semibold shadow hover:shadow-md transition-all inline-flex items-center gap-1">
+            <span>Khám phá sản phẩm</span>
+            <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+        </a>
+    </div>
+}
+</div>
+
+@section Scripts {
+    
+        <script>
+        const isSignedIn = @SignInManager.IsSignedIn(User).ToString().ToLower();
+        if (isSignedIn) {
+            document.addEventListener("DOMContentLoaded", function () {
+                renderCart();
+                const form = document.getElementById("checkout-form");
+                if (form) {
+                    form.addEventListener("submit", handleCheckout);
+                }
+            });
+        }
+
+
+        function getCart() {
+            try {
+                return JSON.parse(localStorage.getItem("decor_cart") || "[]");
+            } catch (e) {
+                console.error("Lỗi parse giỏ hàng:", e);
+                return [];
+            }
+        }
+
+        function saveCart(cart) {
+            localStorage.setItem("decor_cart", JSON.stringify(cart));
+            if (typeof updateCartBadge === 'function') {
+                updateCartBadge();
+            }
+        }
+
+        function renderCart() {
+            const cart = getCart();
+            const container = document.getElementById("cart-container");
+            const emptyContainer = document.getElementById("cart-empty");
+            const listEl = document.getElementById("cart-items-list");
+
+            if (cart.length === 0) {
+                container.classList.add("hidden");
+                emptyContainer.classList.remove("hidden");
+                return;
+            }
+
+            container.classList.remove("hidden");
+            emptyContainer.classList.add("hidden");
+
+            let html = "";
+            let subtotal = 0;
+
+            cart.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                subtotal += itemTotal;
+
+                const imgHtml = item.imageUrl
+                    ? `<img src="${item.imageUrl}" alt="${item.name}" class="w-full h-full object-cover" />`
+                    : `<div class="w-full h-full flex items-center justify-center bg-surface-variant/20 text-on-surface-variant/30"><span class="material-symbols-outlined text-3xl">image</span></div>`;
+
+                const formattedPrice = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.price);
+                const formattedTotal = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(itemTotal);
+
+                html += `
+                    <div class="p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
+                        <!-- Ảnh -->
+                        <div class="w-20 h-20 rounded-xl overflow-hidden border border-outline-variant/20 bg-surface-variant/10 flex-shrink-0">
+                            ${imgHtml}
+                        </div>
+                        
+                        <!-- Thông tin sản phẩm -->
+                        <div class="flex-grow min-w-0">
+                            <h4 class="font-semibold text-on-surface hover:text-primary transition-colors text-base truncate">
+                                <a href="/Home/ProductDetails/${item.productId}">${item.name}</a>
+                            </h4>
+                            <div class="text-xs text-on-surface-variant mt-0.5">Đơn giá: ${formattedPrice}</div>
+                        </div>
+
+                        <!-- Điều khiển số lượng -->
+                        <div class="flex items-center border border-outline-variant/40 rounded-full p-1 bg-surface flex-shrink-0">
+                            <button onclick="changeQuantity(${item.productId}, -1)" 
+                                    class="w-8 h-8 rounded-full hover:bg-surface-variant/25 flex items-center justify-center text-on-surface-variant hover:text-primary transition-all cursor-pointer">
+                                <span class="material-symbols-outlined text-[18px]">remove</span>
+                            </button>
+                            <span class="w-10 text-center text-sm font-medium select-none">${item.quantity}</span>
+                            <button onclick="changeQuantity(${item.productId}, 1)" 
+                                    class="w-8 h-8 rounded-full hover:bg-surface-variant/25 flex items-center justify-center text-on-surface-variant hover:text-primary transition-all cursor-pointer">
+                                <span class="material-symbols-outlined text-[18px]">add</span>
+                            </button>
+                        </div>
+
+                        <!-- Thành tiền -->
+                        <div class="w-28 text-right sm:text-right font-semibold text-primary text-sm flex-shrink-0">
+                            ${formattedTotal}
+                        </div>
+
+                        <!-- Nút Xóa -->
+                        <button onclick="removeItem(${item.productId})" 
+                                class="text-on-surface-variant hover:text-red-500 w-8 h-8 rounded-full hover:bg-red-50 flex items-center justify-center transition-all cursor-pointer flex-shrink-0"
+                                title="Xóa khỏi giỏ hàng">
+                            <span class="material-symbols-outlined text-[20px]">delete</span>
+                        </button>
+                    </div>
+                `;
+            });
+
+            listEl.innerHTML = html;
+
+            // Tính toán Phí vận chuyển: Miễn phí cho đơn hàng >= 5.000.000₫, ngược lại 50.000₫
+            const shippingFee = subtotal >= 5000000 ? 0 : 50000;
+            const total = subtotal + shippingFee;
+
+            const formatVND = (num) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(num);
+
+            document.getElementById("summary-subtotal").textContent = formatVND(subtotal);
+            document.getElementById("summary-shipping").textContent = shippingFee === 0 ? "Miễn phí" : formatVND(shippingFee);
+            document.getElementById("summary-total").textContent = formatVND(total);
+
+            const noteEl = document.getElementById("shipping-note");
+            if (subtotal >= 5000000) {
+                noteEl.textContent = "✓ Đơn hàng của bạn đủ điều kiện nhận miễn phí vận chuyển!";
+                noteEl.className = "text-xs text-green-600 font-medium";
+            } else {
+                const diff = 5000000 - subtotal;
+                noteEl.textContent = `Mua thêm ${formatVND(diff)} để được miễn phí vận chuyển.`;
+                noteEl.className = "text-xs text-primary font-light";
+            }
+        }
+
+        async function changeQuantity(productId, delta) {
+            let cart = getCart();
+            const index = cart.findIndex(item => item.productId === productId);
+            if (index > -1) {
+                const currentItem = cart[index];
+                // Fetch product stock information
+                try {
+                    const response = await fetch(`/api/products/${productId}`);
+                    const productData = await response.json();
+                    const stock = productData.stockQuantity ?? Infinity;
+                    let newQty = currentItem.quantity + delta;
+                    if (newQty > stock) {
+                        newQty = stock; // cap at stock
+                        // Optionally notify user
+                        alert(`Bạn chỉ có thể mua tối đa ${stock} sản phẩm.`);
+                    }
+                    if (newQty < 1) {
+                        newQty = 1; // Minimum quantity
+                    }
+                    cart[index].quantity = newQty;
+                } catch (e) {
+                    console.error('Error fetching stock:', e);
+                    // Fallback: just adjust quantity without stock check
+                    let newQty = currentItem.quantity + delta;
+                    if (newQty < 1) newQty = 1;
+                    cart[index].quantity = newQty;
+                }
+                saveCart(cart);
+                renderCart();
+            }
+        }
+
+        function removeItem(productId) {
+            let cart = getCart();
+            cart = cart.filter(item => item.productId !== productId);
+            saveCart(cart);
+            renderCart();
+        }
+
+        async function handleCheckout(event) {
+            event.preventDefault();
+
+            const cart = getCart();
+            if (cart.length === 0) {
+                alert("Giỏ hàng của bạn đang trống!");
+                return;
+            }
+
+            const phone = document.getElementById("shipping-phone").value.trim();
+            const address = document.getElementById("shipping-address").value.trim();
+            const errorEl = document.getElementById("checkout-error");
+            const btnSubmit = document.getElementById("btn-submit-order");
+
+            if (!phone || !address) {
+                errorEl.textContent = "Vui lòng nhập đầy đủ địa chỉ nhận hàng và số điện thoại.";
+                errorEl.classList.remove("hidden");
+                return;
+            }
+
+            errorEl.classList.add("hidden");
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = `
+                <div class="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <span>Đang xử lý đơn hàng...</span>
+            `;
+
+            const requestBody = {
+                shippingAddress: address,
+                phoneNumber: phone,
+                items: cart.map(item => ({
+                    productId: item.productId,
+                    quantity: item.quantity
+                }))
+            };
+
+            try {
+                const response = await fetch("/api/orders/checkout", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    // Xóa giỏ hàng khi đặt hàng thành công
+                    localStorage.removeItem("decor_cart");
+                    if (typeof updateCartBadge === 'function') {
+                        updateCartBadge();
+                    }
+                    window.location.href = `/Home/OrderSuccess?id=${data.orderId}`;
+                } else {
+                    errorEl.textContent = data.message || "Đã xảy ra lỗi khi tạo đơn hàng. Vui lòng thử lại.";
+                    errorEl.classList.remove("hidden");
+                    btnSubmit.disabled = false;
+                    btnSubmit.innerHTML = `
+                        <span class="material-symbols-outlined">shopping_bag</span>
+                        <span>Xác nhận đặt hàng</span>
+                    `;
+                }
+            } catch (error) {
+                console.error("Lỗi gửi đơn hàng:", error);
+                errorEl.textContent = "Lỗi kết nối máy chủ. Vui lòng kiểm tra lại đường truyền mạng.";
+                errorEl.classList.remove("hidden");
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = `
+                    <span class="material-symbols-outlined">shopping_bag</span>
+                    <span>Xác nhận đặt hàng</span>
+                `;
+            }
+        }
+
+</script>
+}
